@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row-fluid">
+{% if post %}
+<article class="span10 data-block">
+    <div class="data-container">
+        <header>
+            <h2>Admin Control Panel</h2>
+        </header>
+        <section>
+            <form class="form-inline" action="/admin/update_blog_post" method="post">
+                <input type="hidden" name="id" value="{{ post.id }}">
+                <fieldset>
+                    <div class="control-group">
+                        <div class="form-controls">
+                            <label class="control-label" for="textarea">Title</label>
+                            <div class="controls">
+                                <input name="title" id="prependedInput" type="text" value="{{ post.title }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label" for="textarea">Content</label>
+                        <div class="controls">
+                            <textarea id="textarea" name="content" class="input-xlarge" rows="10">{{ post.text }}</textarea>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-alt btn-medium btn-success" type="submit">Save</button>
+                        <a href="/admin/delete_blog_post/{{ post.id }}"><button class="btn btn-alt btn-medium btn-danger" data-toggle="modal" data-target="#newpost">Delete</button></a>
+                    </div>
+                </fieldset>
+            </form>
+            
+        </section>
+    </div>
+</article>
+
+{% else %}
+<article class="span8 data-block">
+    <div class="data-container">
+        <header>
+            <h2>Admin Control Panel</h2>
+        </header>
+        <section>
+            <p>
+                Mwhahahahh! You have so much control. You could do almost anything! But remember to respect our members and not be a dickwad. Thanks, B1n.
+            </p>
+        <button class="btn btn-success" data-toggle="modal" data-target="#newpost">New Blog Post</button>
+        </section>
+    </div>
+</article>
+<article class="span4 data-block data-block-alt">
+    <div class="data-container">
+        <header>
+            <h2>Statistics</h2>
+        </header>
+        <section>
+            <ul class="stats">
+                <li>
+                    <strong class="stats-count">{{ stats['num_users'] }}</strong>
+                    <p>Users</p>
+                    <a class="btn btn-mini btn-alt btn-primary stats-view" href="#" title="" data-original-title="View new registrations">View</a>
+                </li>
+                <li>
+                    <strong class="stats-count">89</strong>
+                    <p>New visitors</p>
+                    <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#" data-original-title="View new visitros">View</a>
+                </li>
+                <li>
+                    <strong class="stats-count">346</strong>
+                    <p>New sales</p>
+                    <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#" data-original-title="View new sales">View</a>
+                </li>
+                <li>
+                    <strong class="stats-count">266</strong>
+                    <p>New orders</p>
+                    <a class="btn btn-mini btn-alt btn-primary stats-view" href="#" title="" data-original-title="View new orders">View</a>
+                </li>
+                <li>
+                    <strong class="stats-count">124</strong>
+                    <p>New requests</p>
+                    <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#" data-original-title="View new requests">View</a>
+                </li>
+            </ul>
+        </section>
+    </div>
+</article>
+</div>
+<div class="modal hide fade" id="newpost">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3>Create Post</h3>
+    </div>
+    <div class="modal-body">
+        <form class="form-inline" action="/admin/create_blog_post" method="post">
+            <fieldset>
+                <div class="control-group">
+                    <div class="form-controls">
+                        <label class="control-label" for="textarea">Title</label>
+                        <div class="controls">
+                            <input name="title" id="prependedInput" type="text">
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="textarea">Content</label>
+                    <div class="controls">
+                        <textarea id="textarea" name="content" class="input-xlarge" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button style="float: right;" class="btn btn-alt btn-medium btn-primary" type="submit">Create</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+{% endif %}
+</div>
+{% endblock %}

@@ -4,28 +4,28 @@
 <!--[if gt IE 9]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
   <head>
     <meta charset="utf-8" />
-    <title>Dashboard | Lindworm Responsive Admin Template</title>
+    <title>MetaCraft</title>
     <meta name="description" content="" />
     <meta name="author" content="Walking Pixels | www.walkingpixels.com" />
     <meta name="robots" content="index, follow" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel='stylesheet' type='text/css' href='static/css/plugins/jquery.fullcalendar.css' />
-    <link rel='stylesheet' type='text/css' href='static/css/plugins/jquery.jgrowl.css' />
-    <link rel="stylesheet" href="static/css/lindworm-blue.css" />
-    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel='stylesheet' type='text/css' href='/static/css/plugins/jquery.fullcalendar.css' />
+    <link rel='stylesheet' type='text/css' href='/static/css/plugins/jquery.jgrowl.css' />
+    <link rel="stylesheet" href="/static/css/lindworm-blue.css" />
+    <!-- <link rel="shortcut icon" href="favicon.ico" /> -->
 
     <!-- JS Libs -->
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="static/js/libs/jquery.js"><\/script>')</script>
-    <script src="static/js/libs/modernizr.js"></script>
-    <script src="static/js/libs/selectivizr.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery.js"><\/script>')</script>
+    <script src="/static/js/libs/modernizr.js"></script>
+    <script src="/static/js/libs/selectivizr.js"></script>
   </head>
   <body>
     <div id="wrapper">
       <div class="container">
         <ul class="secondary-navigation">
-          {% if user %}
+          {% if g.user %}
           {% else %}
           <li><a href="#" id="register_click">Register</a></li>
           <li><a href="#" data-toggle="modal" data-target="#modaly">Login</a></li>
@@ -34,25 +34,41 @@
         <div class="container-inner">
           <div class="sidebar" id="nav">
             <a href="/" class="brand" title="Back to homepage"></a>
-                {% if user %}
+                {% if g.user %}
                   <div class="user-profile">
-                    <img alt="John Pixel avatar" src="http://placekitten.com/60/60" />
+                    <img alt="Avatar" src="{{ g.user.email | gravatar(size=60, rating='x') }}" />
                     <div>
-                      <a href="#">John Pixel</a>
-                      <em>marketing manager</em>
+                      <a href="#">{{ g.user.username }}</a>
+                      {% if g.user.tagline %}<em>{{ g.user.tagline }}</em>{% endif %}
                       <ul class="user-profile-actions">
-                        <li><a href="#" title="Open mailbox"><span class="icon-envelope"></span></a></li>
-                        <li><a href="#" title="Personal settings"><span class="icon-cogs"></span></a></li>
-                        <li><a href="#" title="Logout"><span class="icon-key"></span></a></li>
+                        <li><a href="/profile" title="Open mailbox"><span class="icon-user"></span></a></li>
+                        <li><a href="/settings" title="Personal settings"><span class="icon-cogs"></span></a></li>
+                        <li><a href="/logout" title="Logout"><span class="icon-lock"></span></a></li>
                       </ul>
                     </div>
                   </div>
                 {% endif %}
                 <nav class="main-navigation iconic" role="navigation">
                   <ul>
-                    <li class="active">
-                      <a href="index.html" class="no-submenu"><span class="icon-home"></span>Dashboard</a>
+                    <li>
+                      <a href="/" class="no-submenu"><span class="icon-home"></span>Dashboard</a>
                     </li>
+                    <li>
+                      <a href="/forum/" class="no-submenu"><span class="icon-paper-clip"></span>Forum</a>
+                    </li>
+                    <li>
+                      <a href="/blog" class="no-submenu"><span class="icon-list-alt"></span>Blog</a>
+                    </li>
+                    {% if g.user %}
+                      <li>
+                        <a href="/account/" class="no-submenu"><span class="icon-cogs"></span>Account</a>
+                      </li>
+                      {% if g.user.level >= 60 %}
+                        <li>
+                          <a href="/admin/" class="no-submenu"><span class="icon-briefcase"></span>Admin</a>
+                        </li>
+                      {% endif %}
+                    {% endif %}
                   </ul>
                 </nav>
                 <div class="sidebar-note">
@@ -62,7 +78,10 @@
               </div>
               <div class="content">
                 <header class="page-header">
-                  {% if not user %}
+                  {% block header %}
+                  {% if g.user %}
+                  <h1>Heya {{ g.user.username }}!</h1>
+                  {% else %}
                   <ul class="page-header-actions">
                     <li><a href="#" class="btn btn-alt btn-primary">Join!</a></li>
                   </ul>
@@ -75,15 +94,30 @@
                     Well it looks like you might be new here! Linking your minecraft account with a MetaCraft will allow you to track your stats, post in our forums, and dispute bans!
                   </p>
                   {% endif %}
+                  {% endblock %}
+
+
                 </header>
                 <section class="page-container" role="main">
+                  {% if not g.user %}
                   <div id="regnoti" style="display: none;" class="alert alert-success">
                     <button class="close" data-dismiss="alert">×</button>
                     <strong>To Register</strong> Please join one of our <a href="">servers</a> and type the command: <code>/register myemail@dot.com</code>
                   </div>
+                  {% endif %}
+                  {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                      <ul class=flashes>
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{ category }}">
+                            <button class="close" data-dismiss="alert">×</button>
+                            {{ message|safe }}
+                          </div>
+                        {% endfor %}
+                      </ul>
+                    {% endif %}
+                  {% endwith %}
                   {% block content %}
-                  {% endblock %}
-                    
                     <div class="row">
                       <article class="span12 data-block">
                         <div class="data-container">
@@ -104,24 +138,24 @@
                       </div>
                     </div>
                     <div class="row">
-                      <article class="span8 data-block">
+
+                      <article class="span10 data-block">
+                        {% for p in posts %}
                         <div class="data-container">
                           <header>
-                            <h2>Example block text</h2>
+                            <h2>{{ p.title }}</h2>
                             <ul class="data-header-actions">
-                              <li><i class="icon icon-user"></i> Jeffery</li>
-                              <li><i class="icon icon-calendar"></i> February 20th</li>
-
+                              <li><i class="icon icon-user"></i> {{ p.author.username }}</li>
+                              <li><i class="icon icon-calendar"></i> {{ p.date|pretty }}</li>
                            </ul>
                           </header>
                           <section>
-                            <p>Nullam quis risus <strong>eget urna mollis</strong> ornare vel eu leo. <em>Cum sociisnatoque penatibus</em>  et magnis dis parturient montes, <code>code</code> nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula ut id elit. Sed euismod aliquet sapien consequat tincidunt.</p>
-                            <p>Vivamus sagittis lacus vel augue laoreet <abbr title="" data-original-title="Sample abbreviation">rutrum faucibus dolor auctor</abbr>. Duis mollis, est <strike>non commodo luctus</strike>, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Donec sed odio dui. Sed euismod aliquet sapien consequat tincidunt.</p>
+                            {{ p.text|safe }}
                           </section>
                           <footer>
-                            <p>Lindworm is packed with variety of typography elements for easy and rapid web app development.</p>
                           </footer>
                         </div>
+                        {% endfor %}
                       </article>
                       <article class="span4 data-block data-block-alt">
                         <div class="data-container">
@@ -140,20 +174,22 @@
                         </div>
                       </article>
                     </div>
+                    {% endblock %}
                   </div>
+
                 </section>    
               </div>      
             </div>   
           </div>
           
-          {% if not user %}
+          {% if not g.user %}
             <div class="modal hide fade" id="modaly">
               <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h3>Login/Register</h3>
               </div>
               <div class="modal-body">
-                    <form class="form-inline" action="/login/">
+                    <form class="form-inline" action="/login/" method="post">
                         <fieldset>
                           <div class="control-group">
                             <div class="form-controls">
@@ -182,21 +218,21 @@
           <footer id="footer">
           </footer>
 
-        <script src="static/js/navigation.js"></script>
-        <script src="static/js/bootstrap/bootstrap.min.js"></script>
+        <script src="/static/js/navigation.js"></script>
+        <script src="/static/js/bootstrap/bootstrap.min.js"></script>
         
 
         <!-- jQuery Flot Charts -->
         <!--[if lte IE 8]>
-            <script language="javascript" type="text/javascript" src="static/js/plugins/flot/excanvas.min.js"></script>
+            <script language="javascript" type="text/javascript" src="/static/js/plugins/flot/excanvas.min.js"></script>
         <![endif]-->
-        <script src="static/js/plugins/visualize/jquery.visualize.min.js"></script>
-        <script src="static/js/plugins/flot/jquery.flot.js"></script>
-        <script src="static/js/plugins/sparkline/jquery.sparkline.min.js"></script>
-        <script src="static/js/plugins/jGrowl/jquery.jgrowl.js"
-        <script src="static/js/scripts.js"></script>
+        <script src="/static/js/plugins/visualize/jquery.visualize.min.js"></script>
+        <script src="/static/js/plugins/flot/jquery.flot.js"></script>
+        <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js"></script>
+        <script src="/static/js/plugins/jGrowl/jquery.jgrowl.js"
+        <script src="/static/js/scripts.js"></script>
 
-        <script src="static/js/plugins/pageSlide/jquery.pageslide.min.js"></script>
+        <script src="/static/js/plugins/pageSlide/jquery.pageslide.min.js"></script>
         <script>
       $(document).ready(function() {
         $('#register_click').click(function() {
