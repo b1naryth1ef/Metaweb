@@ -8774,8 +8774,8 @@ body {
 }
 .container {
   width: 940px;
-  margin-top: 80px;
-  margin-bottom: 40px;
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 .container .container-inner {
   clear: both;
@@ -12924,4 +12924,17 @@ ul.wysihtml5-toolbar {
 }
 .progress {
   margin-bottom: 10px;
+}
+
+/* ADDED BY B1NZY */
+li.push {
+  margin-left: 15px;
+}
+
+.online {
+  background-color: #5eb95e;
+}
+
+.friend {
+  background-color: #24c5cf;
 }

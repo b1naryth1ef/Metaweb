@@ -13,6 +13,7 @@
     <link rel='stylesheet' type='text/css' href='/static/css/plugins/jquery.fullcalendar.css' />
     <link rel='stylesheet' type='text/css' href='/static/css/plugins/jquery.jgrowl.css' />
     <link rel="stylesheet" href="/static/css/lindworm-blue.css" />
+    {% block css %}{% endblock %}
     <!-- <link rel="shortcut icon" href="favicon.ico" /> -->
 
     <!-- JS Libs -->
@@ -36,19 +37,28 @@
             <a href="/" class="brand" title="Back to homepage"></a>
                 {% if g.user %}
                   <div class="user-profile">
-                    <img alt="Avatar" src="{{ g.user.email | gravatar(size=60, rating='x') }}" />
+                    <img src="https://minotar.net/avatar/{{ g.user.username }}/60">
                     <div>
+
                       <a href="#">{{ g.user.username }}</a>
                       {% if g.user.tagline %}<em>{{ g.user.tagline }}</em>{% endif %}
                       <ul class="user-profile-actions">
-                        <li><a href="/profile" title="Open mailbox"><span class="icon-user"></span></a></li>
-                        <li><a href="/settings" title="Personal settings"><span class="icon-cogs"></span></a></li>
+                        <li><a href="/p/{{ g.user.username }}"><span class="icon-user"></span></a></li>
+                        <li><a href="/acct" title="Personal settings"><span class="icon-cogs"></span></a></li>
                         <li><a href="/logout" title="Logout"><span class="icon-lock"></span></a></li>
                       </ul>
                     </div>
                   </div>
+                  {% if g.user.getNoteCount() %}
+                    <div class="alert alert-warning" style="margin-top: 10px">
+                      <button class="close" data-dismiss="alert">×</button>
+                      <strong>You have <a href="/acct/">{{ g.user.getNoteCount() }} {{ "notification"|plural(g.user.getNoteCount()) }}</a>!</strong>
+                    </div>
+                  {% endif %}
                 {% endif %}
+                
                 <nav class="main-navigation iconic" role="navigation">
+                  
                   <ul>
                     <li>
                       <a href="/" class="no-submenu"><span class="icon-home"></span>Dashboard</a>
@@ -61,7 +71,7 @@
                     </li>
                     {% if g.user %}
                       <li>
-                        <a href="/account/" class="no-submenu"><span class="icon-cogs"></span>Account</a>
+                        <a href="/acct/" class="no-submenu"><span class="icon-cogs"></span>Account</a>
                       </li>
                       {% if g.user.level >= 60 %}
                         <li>
@@ -77,6 +87,7 @@
                 </div>
               </div>
               <div class="content">
+                {% block gheader %}
                 <header class="page-header">
                   {% block header %}
                   {% if g.user %}
@@ -95,9 +106,8 @@
                   </p>
                   {% endif %}
                   {% endblock %}
-
-
                 </header>
+                {% endblock %}
                 <section class="page-container" role="main">
                   {% if not g.user %}
                   <div id="regnoti" style="display: none;" class="alert alert-success">
@@ -107,14 +117,12 @@
                   {% endif %}
                   {% with messages = get_flashed_messages(with_categories=true) %}
                     {% if messages %}
-                      <ul class=flashes>
                         {% for category, message in messages %}
                           <div class="alert alert-{{ category }}">
                             <button class="close" data-dismiss="alert">×</button>
                             {{ message|safe }}
                           </div>
                         {% endfor %}
-                      </ul>
                     {% endif %}
                   {% endwith %}
                   {% block content %}
@@ -228,36 +236,33 @@
         <![endif]-->
         <script src="/static/js/plugins/visualize/jquery.visualize.min.js"></script>
         <script src="/static/js/plugins/flot/jquery.flot.js"></script>
+        <script src="/static/js/plugins/flot/jquery.flot.pie.js"></script>
         <script src="/static/js/plugins/sparkline/jquery.sparkline.min.js"></script>
         <script src="/static/js/plugins/jGrowl/jquery.jgrowl.js"
         <script src="/static/js/scripts.js"></script>
 
         <script src="/static/js/plugins/pageSlide/jquery.pageslide.min.js"></script>
+        {% block scripts %}
         <script>
       $(document).ready(function() {
         $('#register_click').click(function() {
           $('#regnoti').fadeIn()
         });
-       // $('#modaly').modal('toggle')
-        // Demo #1
-        // we use an inline data source in the example, usually data would be fetched from a server
         var data = [], totalPoints = 300;
         function getRandomData() {
+          if (data.length < totalPoints) {
+            while (data.length < totalPoints) {
+              data.push(0)
+            }
+          }
+
           if (data.length > 0)
             data = data.slice(1);
-        
-          // do a random walk
-          while (data.length < totalPoints) {
-            var prev = data.length > 0 ? data[data.length - 1] : 50;
-            var y = prev + Math.random() * 10 - 5;
-            if (y < 0)
-              y = 0;
-            if (y > 100)
-              y = 100;
-            data.push(y);
-          }
-        
-          // zip the generated y values with the x values
+
+          $.getJSON('/api/get_num_users', function (d){
+            data.push(d.data)
+          });
+
           var res = [];
           for (var i = 0; i < data.length; ++i)
             res.push([i, data[i]])
@@ -265,32 +270,25 @@
         }
         
         // setup control widget
-        var updateInterval = 600;
-        $("#updateInterval").val(updateInterval).change(function () {
-          var v = $(this).val();
-          if (v && !isNaN(+v)) {
-            updateInterval = +v;
-          if (updateInterval < 1)
-            updateInterval = 1;
-          if (updateInterval > 2000)
-            updateInterval = 2000;
-          $(this).val("" + updateInterval);
-          }
-        });
-        
-        // setup plot
+        var updateInterval = 1200;
+        var series = [{
+          data: getRandomData(),
+        }];
+
         var options = {
-          series: { shadowSize: 0, color: '#389abe' }, // drawing is faster without shadows
-          yaxis: { min: 0, max: 100 },
+          series: { shadowSize: 0, color: '#389abe' },
+          yaxis: { min: 0, max: 600},
           xaxis: { show: false },
           grid: { backgroundColor: 'transparent', color: '#b2b2b2', borderColor: 'transparent' }
         };
         var plot = $.plot($("#demo-1"), [ getRandomData() ], options);
         
         function update() {
-          plot.setData([ getRandomData() ]);
-          // since the axes don't change, we don't need to call plot.setupGrid()
+          series[0].data = getRandomData()
+          plot.setData(series);
+          plot.setupGrid();
           plot.draw();
+
           setTimeout(update, updateInterval);
         }
         
@@ -298,5 +296,6 @@
       
       });
     </script>
+     {% endblock %}
 </body>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></head></html>

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
+{% endblock %}
+{% block header %}
+{% if not post and not board %}
+    <h1>Recent Posts</h1>
+{% elif board %}
+<ul class="page-header-actions">
+    {% if g.user and board.perm_post <= g.user.level %}
+    <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> New Post</a></li>
+    {% endif %}
+</ul>
+<h1>{{ board.title }}</h1>
+{% elif post %}
+<h1 style="margin: 0px;">Thread: {% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
+<h3 style="margin: 0px;">By: {% if post.original %}{{ post.original.author.username}}{% else %}{{ post.author.username }}{% endif %}</h3>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+    <article class="span9 data-block">
+    {% if board or posts %}
+        {% if posts.count() %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="span4">Topic</th>
+                    <th class="span2">Author</th>
+                    <th class="span2">Latest</th>
+                    <th class="span1">Posts</th>
+                    <th class="span1">Views</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                {% for p in posts %}
+                <tr>
+                    <td><a href="/forum/board/{{ p.forum.id }}/{{ p.id }}">{{ p.title }}</a></td>
+                    <td><a href="/p/{{p.author.username}}">{{ p.author.username }}</a></td>
+                    <td><a href="/forum/board/{{ p.forum.id }}/{{ p.getLatestPost().id }}">{{ p.getLatestPost().author.username }}</a></td>
+                    <td>{{ p.getNumberPosts() }}</td>
+                    <td>{{ p.views }}</td>
+                </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+        {% else %}
+        <h3>Nothing here!</h3>
+        {% endif %}
+    {% elif post %}
+    <article class="span6 data-block">
+        <div class="data-container">
+            <header>
+                <h2>{{ post.title }}</h2>
+                <ul class="data-header-actions">
+                  <li><i class="icon icon-user"></i> {{ post.author.username }}</li>
+                  <li><i class="icon icon-calendar"></i> {{ post.date|pretty }}</li>
+               </ul>
+            </header>
+            <section>
+                {{ post.content|safe }}
+            </section>
+            <footer>
+                
+            </footer>
+        </div>
+    </article>
+    {% endif %}
+    </article>
+    <article class="span3 data-block">
+        <div class="data-container">
+            <header>
+                <h2>Forums</h2>
+            </header>
+            <section>
+                    {% for c in cats %}
+                    <h3 style="margin: 5px;">{{ c.title}}</h2>
+                    <ul class="nav nav-list" style="margin-bottom: 0px;">
+                    {% for f in c.getForums() %}
+                        <li>{% if board and board.id == f.id %}<i>{% endif %}<p><span class="icon-arrow-right"></span><a href="/forum/board/{{ f.id }}">{{ f.title }}</a></p>{% if board and board.id == f.id %}</i>{% endif %}</li>
+                    {% endfor %}
+                    </ul>
+                    {% endfor %}
+            </section>
+        </div>
+    </article>
+</div>
+
+{% if board or post %}
+<div class="modal hide fade" id="postmodal">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h3>New Post</h3>
+  </div>
+  <div class="modal-body">
+        <form action="/forum/addpost" method="post">
+            <fieldset>
+                {% if board %}
+                <input type="hidden" name="board" value="{{ board.id }}">
+                {% elif post %}
+                {% endif %}
+                <div class="control-group">
+                    <label class="control-label" for="input">Title</label>
+                    <div class="controls">
+                        <input id="input" class="input-xlarge" type="text" name="title" value="">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label" for="input">Description</label>
+                    <div class="controls">
+                       <textarea class="wysihtml" style="width: 98%" rows="8" name="content"></textarea>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button class="btn btn-alt btn-primary" type="submit" id="submitbut">Create Post</button>
+                </div>
+            </fieldset>
+          </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/plugins/wysihtml5/wysihtml5-0.3.0.js"></script>
+<script src="/static/js/plugins/wysihtml5/bootstrap-wysihtml5.js"></script>
+<script>
+    $(document).ready(function() {
+        
+        $('.wysihtml').wysihtml5({
+                "font-styles": false,
+        
+                "link": true, //Button to insert a link. Default true
+                "image": true, //Button to insert an image. Default true,
+                "color": true //Button to change color of font  
+            });
+        
+    });
+</script>
+{% endblock %}

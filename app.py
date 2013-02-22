@@ -1,11 +1,14 @@
-from flask import Flask, render_template, Blueprint, g, flash, session
+from flask import Flask, render_template, Blueprint, g, flash, session, send_file
 from flask.ext.gravatar import Gravatar
 from database import *
-import os, random, redis
+from peewee import JOIN_LEFT_OUTER
+import os, random, redis, json
 
 #Views
 from views.public import public
 from views.admin import admin
+from views.account import acct
+from views.forum import forum
 
 app = Flask(__name__)
 app.secret_key = "change_me"
@@ -13,6 +16,8 @@ rpw = os.getenv("REDISPASS")
 
 app.register_blueprint(public)
 app.register_blueprint(admin, url_prefix="/admin")
+app.register_blueprint(acct, url_prefix="/acct")
+app.register_blueprint(forum, url_prefix="/forum")
 db.connect()
 
 gravatar = Gravatar(
@@ -40,7 +45,14 @@ def postRequest(r):
 
 @app.route('/api/get_num_users')
 def routeGetNumUsers():
-    return random.randint(200, 300)
+    return json.dumps({'data': g.redis.get('meta.online')})
+
+@app.template_filter('plural')
+def pluralize(a, b):
+    if b == 1:
+        return a
+    else:
+        return a+"s"
 
 @app.template_filter('pretty')
 def pretty_date(time=False):

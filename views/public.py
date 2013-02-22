@@ -5,6 +5,40 @@ import json
 
 public = Blueprint('public', __name__)
 
+class UserStats():
+    def __init__(self, user):
+        self.u = user
+
+    def getServer(self):
+        return g.redis.get("meta.user.%s.online")
+
+    def online(self):
+        return g.redis.exists("meta.user.%s.online" % self.u)
+
+    def kd(self, t="pvp"):
+        return self.kills()/self.deaths()
+
+    def kills(self, t="pvp"):
+        return float(150) #g.redis.get("meta.stat.%s.%s.kills" % (t, self.u))
+
+    def deaths(self, t="pvp"):
+        return float(300) #g.redis.get('meta.stat.%s.%s.deaths' % (t, self.u))
+
+    def kdchart(self, t):
+        kills = float(self.kills(t))
+        deaths = float(self.deaths(t))
+        if kills > deaths:
+            k = (kills/deaths)*10
+            d = 100-k
+        else:
+            d = (deaths/kills)*10
+            k = 100-d
+        info = [
+            {"label": "Kills", 'data':[[1, k]]},
+            {"label": "Deaths", 'data':[[1, d]]}
+        ]
+        return json.dumps(info)
+
 @public.route('/')
 def routeIndex():
     posts = BlogPost.select().order_by(BlogPost.date).join(User).limit(5)
@@ -26,6 +60,9 @@ def routeLogin():
         if u.count():
             u = u.get()
             if u.checkPassword(request.values['pw']):
+                q = Infractions.select().where((Infractions.user==u) & (Infractions.permban==True))
+                if q.count():
+                    return flashy("You are banned from the site!", "error", "/")
                 session['u'] = u.username
                 return flashy("Welcome back %s!" % u.username, "success", "/")
         return flashy("Invalid username/password!", "error", "/")
@@ -55,3 +92,12 @@ def routeBlog(i=None, page=1):
     #if not isinstance(page, int) or page.isdigit(): return flashy("Invalid page!", "error", "/blog/")
     posts = BlogPost.select().paginate(int(page), 10).order_by(BlogPost.date).join(User)
     return render_template('blog.html', posts=posts)
+
+@public.route("/p/<user>")
+def routeProfile(user=None):
+    if not user:
+        return flashy("You must specify a user!", "error", "/")
+    u = User.select().where(User.username == user)
+    if u.count():
+        return render_template("profile.html", user=u[0], ustat=UserStats(u[0].username))
+    return flashy("No such user '%s'" % user, "error", "/")
