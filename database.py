@@ -116,11 +116,11 @@ class ForumPost(BaseModel):
     author = ForeignKeyField(User, "posts")
     forum = ForeignKeyField(Forum, "threads")
     original = ForeignKeyField('self', "responses")
-    order = IntegerField()
+    first = BooleanField(default=False)
     #original = BooleanField()
     date = DateTimeField()
     content = TextField()
-    title = CharField()
+    title = CharField(null=True)
     views = IntegerField(default=0)
 
     #OP Stuff
@@ -128,8 +128,13 @@ class ForumPost(BaseModel):
     locked = BooleanField(default=False)
     update = DateTimeField(default=datetime.now)
 
+    def getPage(self): #@DEV inefficient
+        if not self.original: return 1
+        q = [i for i in ForumPost.select().where(ForumPost.original == self.original).order_by(ForumPost.date)]
+        return q.index(self)/10
+
     def getLatestPost(self):
-        q = ForumPost.select().where(ForumPost.original == self).order_by(ForumPost.date)
+        q = self.getReplys()
         if q.count():
             return q[0]
         else:
@@ -137,6 +142,9 @@ class ForumPost(BaseModel):
 
     def getNumberPosts(self):
         return ForumPost.select().where(ForumPost.original == self).count()
+
+    def getReplys(self):
+        return ForumPost.select().where(ForumPost.original == self).order_by(ForumPost.date)
 
 ForumPost.create_table(True)
 

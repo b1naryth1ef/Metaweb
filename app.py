@@ -47,6 +47,10 @@ def postRequest(r):
 def routeGetNumUsers():
     return json.dumps({'data': g.redis.get('meta.online')})
 
+@app.template_filter('pages')
+def pages(i):
+    return range(1, int(i)+1)
+
 @app.template_filter('plural')
 def pluralize(a, b):
     if b == 1:

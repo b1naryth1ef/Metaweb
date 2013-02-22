@@ -13,8 +13,14 @@
 </ul>
 <h1>{{ board.title }}</h1>
 {% elif post %}
+{% if g.user and post.forum.perm_post <= g.user.level %}
+        <ul class="page-header-actions">
+            <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> Reply</a></li>
+        </ul>
+    {% endif %}
 <h1 style="margin: 0px;">Thread: {% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
-<h3 style="margin: 0px;">By: {% if post.original %}{{ post.original.author.username}}{% else %}{{ post.author.username }}{% endif %}</h3>
+<h3 style="margin: 0px;">Started By: {% if post.original %}{{ post.original.author.username}}{% else %}{{ post.author.username }}{% endif %}</h3>
+
 {% endif %}
 {% endblock %}
 
@@ -58,9 +64,13 @@
                 <ul class="data-header-actions">
                   <li><i class="icon icon-user"></i> {{ post.author.username }}</li>
                   <li><i class="icon icon-calendar"></i> {{ post.date|pretty }}</li>
+                  {% if post.author == g.user or g.user.level >= 60 %}
+                    <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ post.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a></li>
+                    <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-success" id="edit" post="{{ post.id }}">Edit</a></li>
+                    {% endif %}
                </ul>
             </header>
-            <section>
+            <section id="post-{{ post.id }}">
                 {{ post.content|safe }}
             </section>
             <footer>
@@ -88,6 +98,46 @@
         </div>
     </article>
 </div>
+{% if post %}
+{% for i in post.getReplys().paginate(page, 10) %}
+<div class="row-fluid">
+    <article class="span9 data-block">
+        <div class="data-container">
+            <header>
+                <h2>
+                    Reply by {{ i.author.username }}
+                </h2>
+                <ul class="data-header-actions">
+                  <li><i class="icon icon-calendar"></i> {{ i.date|pretty }}</li>
+                   {% if i.author == g.user or g.level >= 60 %}
+                     <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a></li>
+                    <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-success edit" id="edit" post="{{ i.id }}">Edit</a></li>
+                {% endif %}
+               </ul>
+            </header>
+            <section id="post-{{ i.id }}">
+                {{ i.content|safe }}
+            </section>
+            <footer style="margin-top: 20px;">
+            
+            </footer>
+        </div>
+    </article>
+    <article class="span3 data-block"></article>
+</div>
+{% endfor %}
+{% if post.getReplys().count() > 10 %}
+    <div class="pagination">
+        <ul>
+            <li {% if page == 1 %} class="disabled"{% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page-1 }}"><span class="icon-arrow-left"></span></a></li>
+            {% for pg in post.getReplys().count()/10|pages %}
+                <li {% if pg == page %}class="active"{% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ pg }}">{{ pg }}</a></li>
+            {% endfor %}
+            <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
+        </ul>
+    </div>
+{% endif %}
+{% endif %}
 
 {% if board or post %}
 <div class="modal hide fade" id="postmodal">
@@ -96,23 +146,25 @@
     <h3>New Post</h3>
   </div>
   <div class="modal-body">
-        <form action="/forum/addpost" method="post">
+        <form {% if board %} action="/forum/addpost" {% elif post %} action="/forum/replypost" {% endif %} method="post">
             <fieldset>
                 {% if board %}
                 <input type="hidden" name="board" value="{{ board.id }}">
                 {% elif post %}
+                <input type="hidden" name="post" value="{{ post.id }}">
                 {% endif %}
-                <div class="control-group">
+                {% if board %}
+                <div class="control-group" id="hideme">
                     <label class="control-label" for="input">Title</label>
                     <div class="controls">
                         <input id="input" class="input-xlarge" type="text" name="title" value="">
                     </div>
                 </div>
-
+                {% endif %}
                 <div class="control-group">
-                    <label class="control-label" for="input">Description</label>
+                    <label class="control-label" for="input">Content</label>
                     <div class="controls">
-                       <textarea class="wysihtml" style="width: 98%" rows="8" name="content"></textarea>
+                       <textarea class="wysihtml" style="width: 98%" rows="8" id="content" name="content"></textarea>
                     </div>
                 </div>
                 
@@ -131,8 +183,9 @@
 <script src="/static/js/plugins/wysihtml5/bootstrap-wysihtml5.js"></script>
 <script>
     $(document).ready(function() {
+        $('.popy').popover({html: true})
         
-        $('.wysihtml').wysihtml5({
+        var x = $('.wysihtml').wysihtml5({
                 "font-styles": false,
         
                 "link": true, //Button to insert a link. Default true
@@ -140,6 +193,11 @@
                 "color": true //Button to change color of font  
             });
         
+        $('.edit').click(function(){
+            //alert($("#post-"+$(this).attr("post")).html())
+            //x.editor.setValue($("#post-"+$(this).attr("post")).html());
+            $('#postmodal').modal("show")
+        });
     });
 </script>
 {% endblock %}
