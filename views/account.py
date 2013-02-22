@@ -11,6 +11,8 @@ It looks like {user} wants to be your friend! If you <b>dont</b> want to be {use
 <a href="/acct/friend/{user}/deny" class="btn btn-danger btn-mini">Deny!</a>
 """
 
+friend_accpt_msg = """<a href="/p/{user}">{user}</a> is now your friend!"""
+
 @acct.route("/")
 @reqLogin
 def routeIndex():
@@ -50,6 +52,7 @@ def routeFriends(user=None, action=None):
         f.confirmed = True
         f.respdate = datetime.now()
         f.save()
+        n = Notification(user=user, title="%s accepted your friend request!" % g.user.username, content=friend_accpt_msg.format(user=g.user.username))
         return flashy("You are now friends with %s" % user.username, "success", "/acct")
     elif action == "deny":
         f = Friendship.select().where(Friendship.a == user, Friendship.b == g.user, Friendship.confirmed == False, Friendship.ignored == False)
