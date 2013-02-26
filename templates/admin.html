@@ -1,4 +1,8 @@
 {% extends "base.html" %}
+{% block css %}
+<link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
+{% endblock %}
+
 {% block content %}
 <div class="row-fluid">
 {% if post %}
@@ -46,7 +50,7 @@
             <p>
                 Mwhahahahh! You have so much control. You could do almost anything! But remember to respect our members and not be a dickwad. Thanks, B1n.
             </p>
-        <button class="btn btn-success" data-toggle="modal" data-target="#newpost">New Blog Post</button>
+        <button class="btn btn-success" data-toggle="modal" data-target="#newpage">New Page</button>
         </section>
     </div>
 </article>
@@ -87,26 +91,24 @@
     </div>
 </article>
 </div>
-<div class="modal hide fade" id="newpost">
+<div class="modal hide fade" id="newpage">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h3>Create Post</h3>
+        <h3>Create Page</h3>
     </div>
-    <div class="modal-body">
-        <form class="form-inline" action="/admin/create_blog_post" method="post">
+    <div class="modal-body" style="max-height: 800px;">
+        <form class="form-inline" action="/admin/page/create" method="post">
             <fieldset>
-                <div class="control-group">
-                    <div class="form-controls">
-                        <label class="control-label" for="textarea">Title</label>
-                        <div class="controls">
-                            <input name="title" id="prependedInput" type="text">
-                        </div>
+                <div class="control-group" id="hideme">
+                    <label class="control-label" for="input">Title</label>
+                    <div class="controls">
+                        <input id="input" class="input-xlarge" type="text" name="title" value="">
                     </div>
                 </div>
                 <div class="control-group">
-                    <label class="control-label" for="textarea">Content</label>
+                    <label class="control-label" for="input">Content</label>
                     <div class="controls">
-                        <textarea id="textarea" name="content" class="input-xlarge" rows="10"></textarea>
+                       <textarea class="wysihtml" style="width: 98%" rows="8" id="content" name="content"></textarea>
                     </div>
                 </div>
                 <div class="form-actions">
@@ -117,4 +119,24 @@
     </div>
 {% endif %}
 </div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="/static/js/plugins/wysihtml5/wysihtml5-0.3.0.js"></script>
+<script src="/static/js/plugins/wysihtml5/bootstrap-wysihtml5.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.popy').popover({html: true})
+        
+        var x = $('.wysihtml').wysihtml5({
+                "font-styles": true,
+        
+                "link": true, //Button to insert a link. Default true
+                "image": true, //Button to insert an image. Default true,
+                "color": true //Button to change color of font  
+            });
+        
+    });
+</script>
 {% endblock %}

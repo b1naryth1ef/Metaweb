@@ -16,16 +16,6 @@ def getStats():
 def routeIndex():
     return render_template("admin.html", stats=getStats())
 
-
-@admin.route('/delete_blog_post')
-@reqLevel(60)
-def routeEdit(id):
-    post = BlogPost.select.where(BlogPost.id == int(id))
-    if post.count():
-        post[0].delete()
-        return flashy("Post deleted!", "success", "/admin/")
-    return flashy("Unknown post! Delete failed!", "error", "/admin/")
-
 @admin.route('/edit/<id>')
 @admin.route('/delete/<id>')
 @reqLevel(60)
@@ -35,26 +25,22 @@ def routeEdit(id):
     else: return flashy("Unknown post ID!", "error", "/admin/")
     return render_template("admin.html", post=post)
 
-@admin.route('/update_blog_post', methods=["POST"])
+@admin.route('/page/create', methods=['POST'])
 @reqLevel(60)
-def routeUpdateBlogPost():
-    post = BlogPost().select().where(BlogPost.id == int(request.values.get('id', -1)))
-    if post.count():
-        post = post[0]
-        post.title = request.values.get('title', post.title)
-        if request.values.get("content"):
-            post.text = markdown.markdown(request.values.get('content'))
-        post.save()
-        return flashy("Blog post <a href='/blog/p/%s'>%s</a> edited!" % (post.id, post.id), "success", "/admin/")
-    return flashy("Error editing blog post!", "error", "/admin/")
+def routeCreatePage():
+    if not request.form.get("title") or not request.form.get("content"):
+        return flashy("Invalid page-creation request!", "error", "/admin/")
 
+    p = Page(
+        title=request.form.get("title"),
+        content=request.form.get("content"),
+        icon=request.form.get("icon", "icon-folder-open"))
+    p.save()
 
-@admin.route('/create_blog_post', methods=["POST"])
-@reqLevel(60)
-def routeCreateBlogPost():
-    if "title" in request.values.keys() and "content" in request.values.keys():
-        text = markdown.markdown(request.values.get('content'))
-        post = BlogPost(author=g.user, date=datetime.now(), title=request.values.get('title'), text=text)
-        post.save()
-        return flashy("Blog post <a href='/blog/p/%s'>%s</a> created!" % (post.id, post.id), "success", "/admin/")
-    return flashy("Error creating blog post!", "error", "/admin/")
+    return flashy("Page created!", "success", "/admin")
+
+@admin.route('/page/edit', methods=['POST'])
+def routeEditPage(): pass
+
+@admin.route('/page/delete/<id>')
+def routeDeletPage(id=None): pass

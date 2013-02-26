@@ -13,6 +13,7 @@ from views.forum import forum
 app = Flask(__name__)
 app.secret_key = "change_me"
 rpw = os.getenv("REDISPASS")
+GIT_REV = os.popen("git log -n 1").readline().split(' ', 1)[-1][:12]
 
 app.register_blueprint(public)
 app.register_blueprint(admin, url_prefix="/admin")
@@ -33,6 +34,7 @@ def beforeRequest():
     g.redis = redis.Redis('mc.hydr0.com', password=rpw)
     g.db = db
     g.db.connect()
+    g.gitrev = GIT_REV
     if session.get('u'):
         g.user = User.select().where(User.username == session['u']).get()
     else:
@@ -49,7 +51,7 @@ def routeGetNumUsers():
 
 @app.template_filter('pages')
 def pages(i):
-    return range(1, int(i)+1)
+    return range(1, int(i)+2)
 
 @app.template_filter('plural')
 def pluralize(a, b):

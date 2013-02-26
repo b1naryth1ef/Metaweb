@@ -6,29 +6,31 @@
 {% if not post and not board %}
     <h1>Recent Posts</h1>
 {% elif board %}
-<ul class="page-header-actions">
-    {% if g.user and board.perm_post <= g.user.level %}
-    <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> New Post</a></li>
-    {% endif %}
-</ul>
-<h1>{{ board.title }}</h1>
+    <ul class="page-header-actions">
+        {% if g.user and board.perm_post <= g.user.level %}
+        <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success btn-large"><i class="icon-plus-sign"></i> New Post</a></li>
+        {% endif %}
+    </ul>
+    <h1>{{ board.title }}</h1>
 {% elif post %}
-{% if g.user and post.forum.perm_post <= g.user.level %}
-        <ul class="page-header-actions">
-            <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> Reply</a></li>
-        </ul>
+    
+    <ul class="page-header-actions">
+        <li><h5><a href="/forum/b/{{ post.forum.id }}"><i class="icon-arrow-left"></i> Back to {{ post.forum.title }}</h5></li>
+    {% if g.user and post.forum.perm_post <= g.user.level and not post.locked %}    
+        <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success btn-large"><i class="icon-plus-sign"></i> Reply</a></li>
     {% endif %}
-<h1 style="margin: 0px;">Thread: {% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
-<h3 style="margin: 0px;">Started By: {% if post.original %}{{ post.original.author.username}}{% else %}{{ post.author.username }}{% endif %}</h3>
-
+    <li><a style="display: none;" class="btn btn-alt btn-success btn-large"></a></li> <!-- WHAT THE FUCK CSS -->
+    </ul>
+    <h1 style="margin: 0px;">Thread: {% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
+    <h3 style="margin: 0px;">Started By: {% if post.original %}{{ post.original.author.username}}{% else %}{{ post.author.username }}{% endif %}</h3>
 {% endif %}
 {% endblock %}
 
 {% block content %}
 <div class="row-fluid">
-    <article class="span9 data-block">
     {% if board or posts %}
-        {% if posts.count() %}
+    <article class="span9 data-block">
+        {% if posts %}
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -43,9 +45,9 @@
                 
                 {% for p in posts %}
                 <tr>
-                    <td><a href="/forum/board/{{ p.forum.id }}/{{ p.id }}">{{ p.title }}</a></td>
-                    <td><a href="/p/{{p.author.username}}">{{ p.author.username }}</a></td>
-                    <td><a href="/forum/board/{{ p.forum.id }}/{{ p.getLatestPost().id }}">{{ p.getLatestPost().author.username }}</a></td>
+                    <td><a href="/forum/b/{{ p.forum.id }}/{{ p.id }}">{{ p.title }}</a> {% if p.sticky and board %}<i class="icon-star"></i> {% endif %}{% if p.locked and board %}<i class="icon-lock"></i> {% endif %}</td>
+                    <td><a href="/u/{{p.author.username}}">{{ p.author.username }}</a></td>
+                    <td><a href="/forum/b/{{ p.forum.id }}/{{ p.getLatestPost().id }}">{{ p.getLatestPost().author.username }}</a></td>
                     <td>{{ p.getNumberPosts() }}</td>
                     <td>{{ p.views }}</td>
                 </tr>
@@ -56,10 +58,12 @@
         {% else %}
         <h3>Nothing here!</h3>
         {% endif %}
+    </article>
     {% elif post %}
-    <article class="span6 data-block">
+    <article class="span9 data-block">
         <div class="data-container">
             <header>
+
                 <h2>{{ post.title }}</h2>
                 <ul class="data-header-actions">
                   <li><i class="icon icon-user"></i> {{ post.author.username }}</li>
@@ -67,7 +71,13 @@
                   {% if post.author == g.user or g.user.level >= 60 %}
                     <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ post.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a></li>
                     <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-success" id="edit" post="{{ post.id }}">Edit</a></li>
+                    {% if g.user.level >= 60 and not post.locked %}
+                        <li style="margin-left: 5px;">
+                            <a class="btn btn-mini btn-alt btn-warning" id="lock" href="/forum/lockpost/{{ post.id }}">Lock</a>
+                        </li>
                     {% endif %}
+                  {% endif %}
+
                </ul>
             </header>
             <section id="post-{{ post.id }}">
@@ -76,6 +86,34 @@
             <footer>
                 
             </footer>
+        {% for i in post.getReplys().paginate(page, 10) %}
+        <section id="post-{{ i.id }}">
+                <div class="entry">
+                    <h4 class="entry-header"></h4>
+                    <p class="entry-content">{{ i.content|safe }}</p>
+                    <p class="entry-details">
+                        Posted by <a href="#">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time>
+                        {% if i.author == g.user or g.user.level >= 60 %}
+                            <a class="btn btn-mini btn-alt btn-danger popy push-right" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
+                            <a style="margin-right: 5px;" class="btn btn-mini btn-alt btn-success push-right" id="edit" post="{{ i.id }}">Edit</a>
+                        {% endif %}
+
+                    </p>
+                </div>
+            </section>
+        {% endfor %}
+        {% if post.getReplys().count() > 10 %}
+    <div class="pagination" style="text-align: center;">
+        <ul>
+            <li {% if page == 1 %} class="disabled"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ page-1 }}"><span class="icon-arrow-left"></span></a></li>
+            {% for pg in (post.getReplys().count()/10)|pages %}
+                <li {% if pg == page %}class="active"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ pg }}">{{ pg }}</a></li>
+            {% endfor %}
+            <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
+        </ul>
+    </div>
+{% endif %}
+
         </div>
     </article>
     {% endif %}
@@ -90,19 +128,22 @@
                     <h3 style="margin: 5px;">{{ c.title}}</h2>
                     <ul class="nav nav-list" style="margin-bottom: 0px;">
                     {% for f in c.getForums() %}
-                        <li>{% if board and board.id == f.id %}<i>{% endif %}<p><span class="icon-arrow-right"></span><a href="/forum/board/{{ f.id }}">{{ f.title }}</a></p>{% if board and board.id == f.id %}</i>{% endif %}</li>
+                        <li>{% if board and board.id == f.id or post and post.forum.id == f.id %}<i>{% endif %}<p><span class="icon-arrow-right"></span><a href="/forum/b/{{ f.id }}">{{ f.title }}</a></p>{% if board and board.id == f.id or post and post.forum.id == f.id %}</i>{% endif %}</li>
                     {% endfor %}
                     </ul>
                     {% endfor %}
+
+
             </section>
         </div>
     </article>
 </div>
 {% if post %}
-{% for i in post.getReplys().paginate(page, 10) %}
+<!-- {% for i in post.getReplys().paginate(page, 10) %}
 <div class="row-fluid">
     <article class="span9 data-block">
         <div class="data-container">
+
             <header>
                 <h2>
                     Reply by {{ i.author.username }}
@@ -116,7 +157,11 @@
                </ul>
             </header>
             <section id="post-{{ i.id }}">
-                {{ i.content|safe }}
+                <div class="entry">
+                    <h4 class="entry-header"></h4>
+                    <p class="entry-content">{{ i.content }}</p>
+                    <p class="entry-details">Posted by <a href="#">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time></p>
+                </div>
             </section>
             <footer style="margin-top: 20px;">
             
@@ -125,18 +170,8 @@
     </article>
     <article class="span3 data-block"></article>
 </div>
-{% endfor %}
-{% if post.getReplys().count() > 10 %}
-    <div class="pagination">
-        <ul>
-            <li {% if page == 1 %} class="disabled"{% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page-1 }}"><span class="icon-arrow-left"></span></a></li>
-            {% for pg in post.getReplys().count()/10|pages %}
-                <li {% if pg == page %}class="active"{% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ pg }}">{{ pg }}</a></li>
-            {% endfor %}
-            <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
-        </ul>
-    </div>
-{% endif %}
+{% endfor %} -->
+
 {% endif %}
 
 {% if board or post %}
@@ -160,6 +195,17 @@
                         <input id="input" class="input-xlarge" type="text" name="title" value="">
                     </div>
                 </div>
+                
+                    {% if  g.user.level >= 60 %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <label class="checkbox">
+                                    <input id="optionsCheckbox" type="checkbox" value="yes" name="sticky">
+                                    Make Post Stick?
+                                </label>
+                            </div>
+                        </div>
+                    {% endif %}
                 {% endif %}
                 <div class="control-group">
                     <label class="control-label" for="input">Content</label>

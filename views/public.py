@@ -7,7 +7,7 @@ public = Blueprint('public', __name__)
 
 class UserStats():
     def __init__(self, user):
-        self.u = user
+        self.u = user.lower()
 
     def getServer(self):
         return g.redis.get("meta.user.%s.online")
@@ -41,7 +41,10 @@ class UserStats():
 
 @public.route('/')
 def routeIndex():
-    posts = BlogPost.select().order_by(BlogPost.date).join(User).limit(5)
+    posts = []
+    forum = Forum.select().where(Forum.frontpage == True)
+    if forum.count():
+        posts = forum[0].getLatestPosts(5)
     return render_template('base.html', posts=posts)
 
 @public.route('/logout/')
@@ -79,21 +82,7 @@ def routeRegister():
                 return render_template("register.html", email=request.values.get('email'), username=val['user'])
     return flashy("Invalid register request!", "error", "/")
 
-@public.route('/blog/p/<i>')
-@public.route('/blog/')
-@public.route('/blog/<page>')
-def routeBlog(i=None, page=1):
-    if i and i.isdigit():
-        posts = BlogPost.select().where(BlogPost.id == int(i)).join(User)
-        if posts.count():
-            return render_template('blog.html', post=posts[0])
-        else:
-            return flashy("Invalid post ID!", "error", "/blog/")
-    #if not isinstance(page, int) or page.isdigit(): return flashy("Invalid page!", "error", "/blog/")
-    posts = BlogPost.select().paginate(int(page), 10).order_by(BlogPost.date).join(User)
-    return render_template('blog.html', posts=posts)
-
-@public.route("/p/<user>")
+@public.route("/u/<user>")
 def routeProfile(user=None):
     if not user:
         return flashy("You must specify a user!", "error", "/")
@@ -101,3 +90,10 @@ def routeProfile(user=None):
     if u.count():
         return render_template("profile.html", user=u[0], ustat=UserStats(u[0].username))
     return flashy("No such user '%s'" % user, "error", "/")
+
+@public.route("/p/<int:id>")
+def routePage(id=None):
+    p = Page().select().where(Page.id==id)
+    if not p.count():
+        return flashy("No such page!", "error", "/")
+    return render_template("page.html", page=p[0])

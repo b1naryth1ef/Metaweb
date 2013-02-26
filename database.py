@@ -95,11 +95,15 @@ class Forum(BaseModel):
     perm_post = IntegerField()
     order = IntegerField(null=True)
     cat = BooleanField(default=False)
+    frontpage = BooleanField(default=False)
     parent = ForeignKeyField("self", "children")
 
     def getForums(self):
         q = Forum.select().where(Forum.parent == self)
         return q
+
+    def getLatestPosts(self, limit):
+        return ForumPost.select().where(ForumPost.forum == self, ForumPost.first == True).order_by(ForumPost.date).limit(limit)
 
 Forum.create_table(True)
 
@@ -126,7 +130,7 @@ class ForumPost(BaseModel):
     #OP Stuff
     sticky = BooleanField(default=False)
     locked = BooleanField(default=False)
-    update = DateTimeField(default=datetime.now)
+    last_update = DateTimeField(default=datetime.now)
 
     def getPage(self): #@DEV inefficient
         if not self.original: return 1
@@ -148,17 +152,13 @@ class ForumPost(BaseModel):
 
 ForumPost.create_table(True)
 
-class Infractions(BaseModel):
-    user = ForeignKeyField(User, "infractions")
-    admin = ForeignKeyField(User, "penalties")
-    desc = TextField()
-    start_date = DateTimeField()
-    end_date = DateTimeField()
+class Page(BaseModel):
+    title = CharField()
+    content = TextField()
+    icon = CharField(default="icon-folder-open")
+    perm_view = IntegerField(default=0)
 
-    permban = BooleanField()
-    kick = BooleanField()
-
-Infractions.create_table(True)
+Page.create_table(True)
 
 class Friendship(BaseModel):
     a = ForeignKeyField(User, "friends")
@@ -170,18 +170,28 @@ class Friendship(BaseModel):
 
 Friendship.create_table(True)
 
+
+def setupForums():
+    cat1 = Forum(title="MetaCraft", perm_view=0, perm_post=60, order=0, cat=True)
+    cat2 = Forum(title="Main Discussion", perm_view=0, perm_post=60, order=1, cat=True)
+    cat3 = Forum(title="Beta Discussion", perm_view=0, perm_post=60, order=2, cat=True)
+    cat1.save()
+    cat2.save()
+    cat3.save()
+
+    Forum(title="News", perm_view=0, perm_post=60, order=0, parent=cat1, cat=False, frontpage=True).save()
+    Forum(title="Tech Blog", perm_view=0, perm_post=60, order=1, parent=cat1, cat=False).save()
+
+    Forum(title="Main", perm_view=0, perm_post=0, order=0, parent=cat2, cat=False).save()
+    Forum(title="Off-Topic", perm_view=0, perm_post=0, order=1, parent=cat2, cat=False).save()
+    Forum(title="Media", perm_view=0, perm_post=0, order=2, parent=cat2, cat=False).save()
+
+    Forum(title="Changelog", perm_view=0, perm_post=60, order=0, parent=cat3, cat=False).save()
+    Forum(title="Bug Reports", perm_view=0, perm_post=60, order=0, parent=cat3, cat=False).save()
+
 if __name__ == '__main__':
     u = User(username="b1naryth1ef", email="b1naryth1ef@gmail.com", password=hashPassword("b1n"), registered=True, registered_date=datetime.now(), level=90, last_join=datetime.now(), tag_line="Proh@x l33t c0d3r z0mg.")
     u.save()
     u = User(username="testicle", email="test@test.com", password=hashPassword("test"), registered=True, registered_date=datetime.now(), level=30, last_join=datetime.now())
     u.save()
-    f1 = Forum(title="General", perm_view=0, perm_post=0, order=0, cat=True)
-    f1.save()
-    f = Forum(title="News", perm_view=0, perm_post=60, parent=f1, cat=False)
-    f.save()
-    f = Forum(title="Open Discussion", perm_view=0, perm_post=0, parent=f1, cat=False)
-
-    f2 = Forum(title="Beta", perm_view=0, perm_post=0, order=1, cat=True)
-    f2.save()
-    f = Forum(title="Bug Reports", perm_view=0, perm_post=0, parent=f2, cat=False)
-    f.save()
+    setupForums()
