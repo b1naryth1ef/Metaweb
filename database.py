@@ -175,7 +175,7 @@ class ForumPost(BaseModel):
         return ForumPost.select().where(ForumPost.original == self).count()
 
     def getReplys(self):
-        return ForumPost.select().where(ForumPost.original == self).order_by(ForumPost.date)
+        return ForumPost.select().where(ForumPost.original == self).order_by(ForumPost.date.desc())
 
 ForumPost.create_table(True)
 
