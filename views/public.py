@@ -120,7 +120,7 @@ def routeRegister():
             u = User()
             u.username = v['user']
             u.email = v['email']
-            u.password = request.values.get("pw")
+            u.password = hashPassword(request.values.get("pw"))
             u.registered = True
             u.registered_date = datetime.now()
             u.level = 0
