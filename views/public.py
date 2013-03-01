@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, flash, redirect, request, g, session
 from util import reqLogin, reqLevel, flashy
+from datetime import datetime
 from database import *
 import json
 
@@ -63,24 +64,24 @@ def routeLogin():
         if u.count():
             u = u.get()
             if u.checkPassword(request.values['pw']):
-                q = Infractions.select().where((Infractions.user==u) & (Infractions.permban==True))
-                if q.count():
-                    return flashy("You are banned from the site!", "error", "/")
+                #q = Infractions.select().where((Infractions.user==u) & (Infractions.permban==True))
+                #if q.count():
+                #    return flashy("You are banned from the site!", "error", "/")
                 session['u'] = u.username
                 return flashy("Welcome back %s!" % u.username, "success", "/")
         return flashy("Invalid username/password!", "error", "/")
     else:
         return flashy("Invalid login request!", "error", "/")
 
-@public.route('/register/')
-def routeRegister():
-    if 'email' in request.values and 'id' in request.values:
-        key = 'meta.register.%s' % request.get('email')
-        if g.redis.exists(key):
-            val = json.loads(g.redis.get(key))
-            if val['key'] == request.get('id'):
-                return render_template("register.html", email=request.values.get('email'), username=val['user'])
-    return flashy("Invalid register request!", "error", "/")
+# @public.route('/register/')
+# def routeRegister():
+#     if 'email' in request.values and 'id' in request.values:
+#         key = 'meta.register.%s' % request.get('email')
+#         if g.redis.exists(key):
+#             val = json.loads(g.redis.get(key))
+#             if val['key'] == request.get('id'):
+#                 return render_template("register.html", email=request.values.get('email'), username=val['user'])
+#     return flashy("Invalid register request!", "error", "/")
 
 @public.route("/u/<user>")
 def routeProfile(user=None):
@@ -97,3 +98,36 @@ def routePage(id=None):
     if not p.count():
         return flashy("No such page!", "error", "/")
     return render_template("page.html", page=p[0])
+
+@public.route("/register/", methods=["GET", "POST"])
+def routeRegister():
+    if g.user:
+        return flashy("You cannot confirm an email when you are logged in!", "error", "/")
+    if not request.values.get('email') or not request.values.get("id"):
+        return flashy("Invalid register request!", "error", "/")
+
+    if g.redis.exists("meta.register.%s" % request.values.get('email')):
+        v = g.redis.get("meta.register.%s" % request.values.get("email"))
+        try:
+            v = json.loads(v)
+        except:
+            print "Error w/ conf: %s" % v
+            return flashy("Error with confirmation request!", "error", "/")
+
+        if v['key'] == request.values.get("id"):
+            if not request.values.get("pw"):
+                return render_template("register.html", id=request.values.get("id"), email=request.values.get("email"))
+            u = User()
+            u.username = v['user']
+            u.email = v['email']
+            u.password = request.values.get("pw")
+            u.registered = True
+            u.registered_date = datetime.now()
+            u.level = 0
+            u.altlevel = 0
+            u.save()
+            g.user = u
+            session['u'] = u.username
+            g.redis.delete("meta.register.%s" % u.email)
+            return flashy("You are now registered! Enjoy!", "success", "/")
+    return flashy("Invalid confirmation request!", "error", "/")

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block header %}
+<h2>Setup Password</h2>
+{% endblock %}
+{% block content %}
+<div class="row-fluid">
+  <article class="span12 data-block">
+    <div class="data-container">
+      <section>
+        <form class="form-inline" action="/register/" method="post">
+            <fieldset>
+                <input type="hidden" name="email" value="{{ email }}" />
+                <input type="hidden" name="id" value="{{ id }}" />
+                <div class="control-group">
+                    <div class="form-controls">
+                        <div class="input-prepend">
+                            <span class="add-on">Password</span><input name="pw" type="password">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-alt btn-large btn-primary" type="submit">Register!</button>
+                </div>
+            </fieldset>
+        </form>
+      </section>
+    </div>
+  </article>
+</div>
+
+
+{% endblock %}

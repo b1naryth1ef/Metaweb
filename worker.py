@@ -4,7 +4,7 @@ from database import User, db
 db.connect()
 r = redis.Redis(host='mc.hydr0.com', password=os.getenv("REDISPASS"))
 
-msg = """
+MESG = """
 Hiya {username}!
 
 This is an email letting you know we've recieved a registration request to join MetaCraft, from the minecraft account {username}!
@@ -28,12 +28,13 @@ def registerUser(opt):
         "email": opt['email']
         })
     r.set("meta.register.%s" % opt['email'], val)
+    print opt, key
     sendEmail(opt, key)
 
 def sendEmail(opt, key):
     SUBJECT = "MetaCraft registration for '%s'" % opt['username']
     FROM = "noreply@hydr0.com"
-    text = msg.format(url="http://m.hydr0.com/register?email=%s&id=%s" % (opt['email'], key), **opt)
+    text = MESG.format(url="http://m.hydr0.com/register?email=%s&id=%s" % (opt['email'], key), **opt)
     BODY = string.join((
             "From: %s" % FROM,
             "To: %s" % opt['email'],
@@ -48,12 +49,13 @@ def sendEmail(opt, key):
 while True:
     msg = r.blpop("meta.wqueue")
     try:
-        msg = json.loads(msg)
+        msg = json.loads(msg[1])
     except:
-        print "Error decoding json stuffs"
+        print "Error decoding json stuffs: %s" % str(msg[1])
+        continue
 
-    if msg['t'] == "check":
-        val = User.get(User.email == msg['email'] | User.username == msg['username']) != None
+    if msg['a'] == "check":
+        val = User.get(User.email == msg['email'] | User.username == msg['username']) is not None
         msg = r.rpush("meta.squeue.%s" % msg['server'], json.dumps({'t': "resp", "id": msg['id'], "result": val}))
-    elif msg['t'] == "reg":
+    elif msg['a'] == "reg":
         registerUser(msg)

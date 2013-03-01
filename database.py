@@ -20,6 +20,7 @@ class User(BaseModel):
     last_join = DateTimeField(null=True)
     registered_date = DateTimeField(null=False)
     level = IntegerField(default=0)
+    altlevel = IntegerField(default=0) #For visual purposes only (no lvl-checks)
 
     #Profile
     description = TextField(default="Nothing here yet!")
@@ -45,8 +46,15 @@ class User(BaseModel):
     def getForumPosts(self):
         return ForumPost().select().where(ForumPost.author == self)
 
-    def getFriends(self, j=False):
-        q = Friendship().select().where(Friendship.a == self, Friendship.b == self, Friendship.confirmed == True)
+    def getFriends(self):
+        res = []
+        for i in self.getFriendships(j=True):
+            if i.a == self: res.append(i.b)
+            else: res.append(i.a)
+        return res
+
+    def getFriendships(self, j=False):
+        q = Friendship().select().where((Friendship.a == self) | (Friendship.b == self), Friendship.confirmed == True)
         if j: q = q.join(User)
         return q
 
@@ -66,15 +74,34 @@ class User(BaseModel):
     def getNotes(self):
         return Notification.select().where(Notification.user == self, Notification.read == False)
 
-    def getAllNotes(self, date=False):
+    def getAllNotes(self, date=False, sort=False):
         q = Notification.select().where(Notification.user == self)
         if date:
-            return q.order_by(Notification.date)
+            return q.order_by(Notification.date.desc())
         return q
 
     def getNoteCount(self):
         return self.getNotes().count()
 
+    def getGroupBadge(self, id):
+        if id <= 20:
+            return '<span class="label">Regular</span>'
+        elif id == 30:
+            return '<span class="label label-success">Donator</span>'
+        elif id == 40:
+            return '<span class="label label-info">Community Contributor</span>'
+        elif id == 45:
+            return '<span class="label label-info">Map Developer</span>'
+        elif id == 50:
+            return '<span class="label label-warning">Junior Moderator</span>'
+        elif id == 60:
+            return '<span class="label label-warning">Moderator</span>'
+        elif id == 70:
+            return '<span class="label label-important">Developer</span>'
+        elif id == 80:
+            return '<span class="label label-important">Admin</span>'
+        elif id >= 90:
+            return '<span class="label label-inverse">Creator</span>'
 
 User.create_table(True)
 
@@ -166,6 +193,7 @@ class Friendship(BaseModel):
     confirmed = BooleanField()
     ignored = BooleanField()
     date = DateTimeField()
+    note = ForeignKeyField(Notification)
     respdate = DateTimeField(null=True)
 
 Friendship.create_table(True)
@@ -190,7 +218,7 @@ def setupForums():
     Forum(title="Bug Reports", perm_view=0, perm_post=60, order=0, parent=cat3, cat=False).save()
 
 if __name__ == '__main__':
-    u = User(username="b1naryth1ef", email="b1naryth1ef@gmail.com", password=hashPassword("b1n"), registered=True, registered_date=datetime.now(), level=90, last_join=datetime.now(), tag_line="Proh@x l33t c0d3r z0mg.")
+    u = User(username="b1naryth1ef", email="b1naryth1ef@gmail.com", password=hashPassword("b1n"), registered=True, registered_date=datetime.now(), level=90, last_join=datetime.now(), tag_line="Proh@x l33t c0d3r z0mg.", altlevel=70)
     u.save()
     u = User(username="testicle", email="test@test.com", password=hashPassword("test"), registered=True, registered_date=datetime.now(), level=30, last_join=datetime.now())
     u.save()

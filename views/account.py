@@ -32,11 +32,11 @@ def routeFriends(user=None, action=None):
 
     if action == "add":
         if not g.user.canFriend(user):
-            return flashy("You can't friend that user!", "error", "/")
-        f = Friendship(a=g.user, b=user, confirmed=False, ignored=False, date=datetime.now())
+            return flashy("You can't friend that user!", "error", "/")        
         n = Notification(user=user, title="%s wants to be your friend!" % g.user.username, content=friend_msg.format(user=g.user.username))
-        f.save()
         n.save()
+        f = Friendship(a=g.user, b=user, confirmed=False, ignored=False, date=datetime.now(), note=n)
+        f.save()
         return flashy("Your friend request has been sent too '%s'!" % user.username, "success", "/")
     elif action == "rmv":
         if not g.user.isFriendsWith(user):
@@ -52,6 +52,8 @@ def routeFriends(user=None, action=None):
         f.confirmed = True
         f.respdate = datetime.now()
         f.save()
+        f.note.read = True
+        f.note.save()
         n = Notification(user=user, title="%s accepted your friend request!" % g.user.username, content=friend_accpt_msg.format(user=g.user.username))
         return flashy("You are now friends with %s" % user.username, "success", "/acct")
     elif action == "deny":
@@ -61,9 +63,10 @@ def routeFriends(user=None, action=None):
         f = f[0]
         f.ignored = True
         f.respdate = datetime.now()
+        f.note.read = True
+        f.note.save()
         f.save()
         return flashy("The friend request from %s has been denied!" % user.username, "warning", "/acct")
-
 
 @acct.route('/note/<id>/<action>')
 @reqLogin

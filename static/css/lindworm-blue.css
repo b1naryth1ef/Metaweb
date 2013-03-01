@@ -12946,3 +12946,23 @@ li.push {
 .friend {
   background-color: #24c5cf;
 }
+
+.userli {
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 8px;
+  background-color: #fdfdfd;
+  border: 1px solid #e0e0e0;
+  background-color: #fefefe;
+  background-image: -moz-linear-gradient(top, #ffffff, #fdfdfd);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#fdfdfd));
+  background-image: -webkit-linear-gradient(top, #ffffff, #fdfdfd);
+  background-image: -o-linear-gradient(top, #ffffff, #fdfdfd);
+  background-image: linear-gradient(to bottom, #ffffff, #fdfdfd);
+  background-repeat: repeat-x;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#fffdfdfd', GradientType=0);
+  -webkit-box-shadow: 1px 1px 0 #ffffff;
+  -moz-box-shadow: 1px 1px 0 #ffffff;
+  box-shadow: 1px 1px 0 #ffffff;
+  *zoom: 1;
+}

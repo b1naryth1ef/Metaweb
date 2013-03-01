@@ -28,7 +28,7 @@
         <ul class="secondary-navigation">
           {% if g.user %}
           {% else %}
-          <li><a href="#" id="register_click">Register</a></li>
+          <li><a href="#" class="register_click">Register</a></li>
           <li><a href="#" data-toggle="modal" data-target="#modaly">Login</a></li>
           {% endif %}
         </ul>
@@ -37,7 +37,7 @@
             <a href="/" class="brand" title="Back to homepage"></a>
                 {% if g.user %}
                   <div class="user-profile">
-                    <img src="https://minotar.net/avatar/{{ g.user.username }}/60">
+                    <img src="https://minotar.net/avatar/{{ g.user.username }}/60" class="img-rounded">
                     <div>
 
                       <a href="/u/{{ g.user.username }}">{{ g.user.username }}</a>
@@ -91,7 +91,7 @@
                   <h1>Heya {{ g.user.username }}!</h1>
                   {% else %}
                   <ul class="page-header-actions">
-                    <li><a href="#" class="btn btn-alt btn-primary">Join!</a></li>
+                    <li><a href="#" class="btn btn-alt btn-primary register_click">Join!</a></li>
                   </ul>
                   <a class="nav-slide" href="#nav">
                     <span class="icon-align-justify"></span>
@@ -250,7 +250,7 @@
         {% block scripts %}
         <script>
       $(document).ready(function() {
-        $('#register_click').click(function() {
+        $('.register_click').click(function() {
           $('#regnoti').fadeIn()
         });
         var data = [], totalPoints = 300;

@@ -35,7 +35,9 @@
                   <td>
                   <a class="btn btn-success btn-mini popy" data-content="{{ note.content }}" data-original-title="{{ note.title }}">Read</a>
                   {% if not note.read %}
-                    <a id="markread" noteid="{{ note.id }}" class="btn btn-danger btn-mini" cls="{{ note.ntype }}">Archive</a>
+                    <a id="markread" noteid="{{ note.id }}" class="btn btn-danger btn-mini" cls="{{ note.ntype }}">
+                      Archive
+                    </a>
                   {% endif %}
                   </td>
                 </tr>
@@ -54,22 +56,23 @@
       <section>
         <ul class="stats">
           <li>
-            <strong class="stats-count">{{ g.user.getFriends().count() }} </strong>
+            <strong class="stats-count">{{ g.user.getFriendships().count() }} </strong>
             <p>Friends</p>
-            <a class="btn btn-mini btn-alt btn-primary stats-view" href="#" title="" data-original-title="View new registrations">View</a>
+            <a class="btn btn-mini btn-alt btn-primary stats-view" href="#" title="">View</a>
           </li>
           <li>
             <strong class="stats-count">{{ g.user.getForumPosts().count() }}</strong>
             <p>Forum Posts</p>
-            <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#" data-original-title="View new visitros">View</a>
+            <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#">View</a>
           </li>
         </ul>
       </section>
     </div>
   </article>
 </div>
+
 <div class="row-fluid">
-  <article class="span10 data-block">
+  <article class="span12 data-block">
     <div class="data-container">
       <header>
         <h2>Profile</h2>
@@ -86,7 +89,7 @@
                 </div>
               </div>
               <div class="control-group">
-                <label class="control-label" for="gender">Gender</label> {{ g.user.gender }}
+                <label class="control-label" for="gender">Gender</label>
                 <div class="controls">
                   <label class="radio">
                     <input type="radio" name="gender" id="optionsRadios1" value="Male" {% if g.user.gender == "Male" %} checked="" {% endif %}>
@@ -151,6 +154,7 @@
   <article class="span2 data-block">
   </article>
 </div>
+
 {% endblock %}
 
 {% block scripts %}

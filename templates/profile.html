@@ -7,8 +7,10 @@
   <h3 style="margin: 0px 0px;">
     {% if ustat.online() %}
       <i>Online: {{ ustat.getServer() }}</i>
-    {% else %}
+    {% elif user.last_join %}
       <i>Last played: {{ user.last_join|pretty }}</i>
+    {% else %}
+      <i>Never played!</i>
     {% endif %}
   </h2>
 {% endblock %}
@@ -19,24 +21,9 @@
     <header>
       <h2>About {{ user.username }}</h2>
       <ul class="data-header-actions">
-        {% if user.level <= 20 %}
-        <li><span class="label">Regular</span></li>
-        {% elif user.level == 30 %} 
-        <li><span class="label label-success">Donator</span></li>
-        {% elif user.level == 40 %}
-        <li><span class="label label-info">Community Contributor</span></li>
-        {% elif user.level == 45 %}
-        <li><span class="label label-info">Map Developer</span></li>
-        {% elif user.level == 50 %}
-        <li><span class="label label-warning">Junior Moderator</span></li>
-        {% elif user.level == 60 %}
-        <li><span class="label label-warning">Moderator</span></li>
-        {% elif user.level == 70 %}
-        <li><span class="label label-important">Developer</span></li>
-        {% elif user.level == 80 %}
-        <li><span class="label label-important">Admin</span></li>
-        {% elif user.level >= 90 %}
-        <li><span class="label label-inverse">Creator</span></li>
+        <li>{{ user.getGroupBadge(user.level)|safe }}</li>
+        {% if user.altlevel %}
+          <li style="margin-left: 10px;">{{ user.getGroupBadge(user.altlevel)|safe }}</li>
         {% endif %}
         {% if g.user and g.user.isFriendsWith(user) %}
           <li style="margin-left: 10px;"><span class="label label-success friend">Friend</span></li>
@@ -53,7 +40,6 @@
       {% if user.twitter != "None" %}<b>Twitter:</b><p>{{ user.twitter }}</p>{% endif %}
       {% if user.skype != "None" %}<b>Skype:</b><p>{{ user.skype }}</p>{% endif %}
     </section>
-    <hr>
     <footer>
       {% if g.user and g.user != user%}
         {% if g.user.canFriend(user) %}
@@ -77,6 +63,27 @@
       {% endif %}
     </footer>
   </div>
+  <div class="data-container">
+      <header>
+        <h2>Friends</h2>
+      </header>
+      <section>
+        <div class="row-fluid">
+        {% for f in user.getFriends() %}
+        <div class="userli span3" style="max-width: 120px; text-align: center;">
+          <img src="https://minotar.net/avatar/{{ f.username }}/60">
+          <h4 class="entry-header" style="margin: 4px 0;"><a href="/u/{{ f.username }}">{{ f.username }}</a></h4>
+          {% if g.user == user %}
+          <p class="entry-content" style="margin: 0 0 0px;">
+            <a class="btn btn-mini btn-alt btn-success" title="" href="/u/{{ f.username }}">View</a>
+            <a class="btn btn-mini btn-alt btn-danger" title="" href="/acct/friend/{{ f.username }}/rmv">Unfriend</a>
+          </p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      </section>
+    </div>
 </article>
 <article class="span4 data-block data-block-alt">
     <div class="data-container">
@@ -102,7 +109,9 @@
   </article>
 </div>
 <div class="row-fluid">
-  <article class="span6 data-block data-block-alt"></article>
+  <article class="span12 data-block">
+    
+  </article>
 </div>
 {% endblock %}
 
