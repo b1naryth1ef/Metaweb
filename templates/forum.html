@@ -94,11 +94,12 @@
                     <p class="entry-content">{{ i.content|safe }}</p>
                     <p class="entry-details">
                         Posted by <a href="#">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time>
-                        {% if i.author == g.user or g.user.level >= 60 %}
-                            <a class="btn btn-mini btn-alt btn-danger popy push-right" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
-                            <a style="margin-right: 5px;" class="btn btn-mini btn-alt btn-success push-right" id="edit" post="{{ i.id }}">Edit</a>
+                        {% if g.user %}
+                            {% if i.author == g.user or g.user.level >= 60 %}
+                                <a class="btn btn-mini btn-alt btn-danger popy push-right" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
+                                <a style="margin-right: 5px;" class="btn btn-mini btn-alt btn-success push-right" id="edit" post="{{ i.id }}">Edit</a>
+                            {% endif %}
                         {% endif %}
-
                     </p>
                 </div>
             </section>
@@ -161,7 +162,7 @@
                     </div>
                 </div>
                 
-                    {% if  g.user.level >= 60 %}
+                    {% if g.user and g.user.level >= 60 %}
                         <div class="control-group">
                             <div class="controls">
                                 <label class="checkbox">
