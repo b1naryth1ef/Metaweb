@@ -167,15 +167,17 @@ class ForumPost(BaseModel):
     def getLatestPost(self):
         q = self.getReplys()
         if q.count():
-            return q[0]
+            return q[-1]
         else:
             return self
 
     def getNumberPosts(self):
         return ForumPost.select().where(ForumPost.original == self).count()
 
-    def getReplys(self):
-        return ForumPost.select().where(ForumPost.original == self).order_by(ForumPost.date.desc())
+    def getReplys(self, rev=False):
+        q = ForumPost.select().where(ForumPost.original == self)
+        if rev: return q.order_by(ForumPost.date.desc())
+        return q.order_by(ForumPost.date)
 
 ForumPost.create_table(True)
 
