@@ -167,7 +167,7 @@ class ForumPost(BaseModel):
     def getLatestPost(self):
         q = self.getReplys()
         if q.count():
-            return q[-1]
+            return q.reverse()[0]
         else:
             return self
 
