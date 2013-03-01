@@ -68,7 +68,7 @@
                 <ul class="data-header-actions">
                   <li><i class="icon icon-user"></i> {{ post.author.username }}</li>
                   <li><i class="icon icon-calendar"></i> {{ post.date|pretty }}</li>
-                  {% if post.author == g.user or g.user.level >= 60 %}
+                  {% if post.author == g.user or g.user and g.user.level >= 60 %}
                     <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ post.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a></li>
                     <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-success" id="edit" post="{{ post.id }}">Edit</a></li>
                     {% if g.user.level >= 60 and not post.locked %}
