@@ -1,6 +1,7 @@
 from flask import Flask, g, session
 from flask.ext.gravatar import Gravatar
 from datetime import datetime
+from raven.contrib.flask import Sentry
 from database import *
 from git import *
 import os, redis, json
@@ -13,6 +14,7 @@ from views.forum import forum
 
 app = Flask(__name__)
 app.secret_key = "change_me"
+app.config['SENTRY_DSN'] = "http://25a16ac496ac42ee864d8611fbe3a730:d2673a44f27c42cdb75d4ff646d08ebe@debug.hydr0.com/2" #@TODO change before release
 rpw = os.getenv("REDISPASS")
 GIT_REV = os.popen("git log -n 1").readline().split(' ', 1)[-1][:12]
 
@@ -20,6 +22,7 @@ app.register_blueprint(public)
 app.register_blueprint(admin, url_prefix="/admin")
 app.register_blueprint(acct, url_prefix="/acct")
 app.register_blueprint(forum, url_prefix="/forum")
+sentry = Sentry(app)
 db.connect()
 
 #Load Commits
