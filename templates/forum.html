@@ -138,42 +138,6 @@
         </div>
     </article>
 </div>
-{% if post %}
-<!-- {% for i in post.getReplys().paginate(page, 10) %}
-<div class="row-fluid">
-    <article class="span9 data-block">
-        <div class="data-container">
-
-            <header>
-                <h2>
-                    Reply by {{ i.author.username }}
-                </h2>
-                <ul class="data-header-actions">
-                  <li><i class="icon icon-calendar"></i> {{ i.date|pretty }}</li>
-                   {% if i.author == g.user or g.level >= 60 %}
-                     <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a></li>
-                    <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-success edit" id="edit" post="{{ i.id }}">Edit</a></li>
-                {% endif %}
-               </ul>
-            </header>
-            <section id="post-{{ i.id }}">
-                <div class="entry">
-                    <h4 class="entry-header"></h4>
-                    <p class="entry-content">{{ i.content }}</p>
-                    <p class="entry-details">Posted by <a href="#">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time></p>
-                </div>
-            </section>
-            <footer style="margin-top: 20px;">
-            
-            </footer>
-        </div>
-    </article>
-    <article class="span3 data-block"></article>
-</div>
-{% endfor %} -->
-
-{% endif %}
-
 {% if board or post %}
 <div class="modal hide fade" id="postmodal">
   <div class="modal-header">
