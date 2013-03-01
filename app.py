@@ -1,8 +1,9 @@
-from flask import Flask, render_template, Blueprint, g, flash, session, send_file
+from flask import Flask, g, session
 from flask.ext.gravatar import Gravatar
+from datetime import datetime
 from database import *
-from peewee import JOIN_LEFT_OUTER
-import os, random, redis, json
+from git import *
+import os, redis, json
 
 #Views
 from views.public import public
@@ -21,6 +22,12 @@ app.register_blueprint(acct, url_prefix="/acct")
 app.register_blueprint(forum, url_prefix="/forum")
 db.connect()
 
+#Load Commits
+changes = []
+repo = Repo(".")
+for i in repo.iter_commits("master", max_count=5):
+    changes.append(i)
+
 gravatar = Gravatar(
     app,
     size=100,
@@ -35,6 +42,7 @@ def beforeRequest():
     g.db = db
     g.db.connect()
     g.gitrev = GIT_REV
+    g.changes = changes
     if session.get('u'):
         g.user = User.select().where(User.username == session['u']).get()
     else:
@@ -59,6 +67,11 @@ def pluralize(a, b):
         return a
     else:
         return a+"s"
+
+@app.template_filter("commitdate")
+def commit_date(i):
+    obj = datetime.fromtimestamp(int(i))
+    return pretty_date(obj)
 
 @app.template_filter('pretty')
 def pretty_date(time=False):

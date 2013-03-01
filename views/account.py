@@ -88,6 +88,7 @@ def routeEdit():
 
     for k, v in request.form.items():
         if k in fields:
+            if k == "gender" and not v in ['Male', 'Female', 'Unlabelable']: continue
             setattr(g.user, k, v)
     g.user.save()
 

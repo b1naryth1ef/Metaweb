@@ -135,6 +135,7 @@
                           </div>
                       </article>
                     </div>
+                    {% if not g.user %}
                     <div class="row">
                       <div class="hero-unit">
                         <h1>MetaCraft</h1>
@@ -142,6 +143,7 @@
                         <p><a style="float: right;" class="btn btn-alt btn-primary btn-large">Read more</a></p>
                       </div>
                     </div>
+                    {% endif %}
                     <div class="row">
 
                       <article class="span10 data-block">
@@ -168,13 +170,15 @@
                             <h2>Recent Updates:</h2>
                           </header>
                           <section>
+                            {% for com in g.changes %}
                             <div class="entry">
                               <h4 class="entry-header">
-                                <span class="fam-database-save"></span> Git 112563 <time datetime="2012-09-18">2012-09-18</time>
+                                <span class="fam-database-save"></span> {{ com.name_rev[:6] }} <time datetime="2012-09-18">{{ com.committed_date|commitdate }}</time>
                               </h4>
-                              <p class="entry-content">Fixed bug #13434 by refactoring Neeko Oni source.</p>
-                              <p class="entry-details">Posted by <a href="#">John Pixel</a></p>
+                              <p class="entry-content">{{ com.summary}}</p>
+                              <p class="entry-details">Pushed by <a href="/u/{{ com.author.name }}">{{ com.author.name }}</a></p>
                             </div>
+                            {% endfor %}
                           </section>
                         </div>
                       </article>

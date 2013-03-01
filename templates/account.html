@@ -1,153 +1,155 @@
 {% extends "base.html" %}
+
 {% block css %}
-<link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
+  <link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
 {% endblock %}
+
 {% block header %}
-<h1>User Settings Page</h1>
+  <h1>User Settings Page</h1>
 {% endblock %}
+
 {% block content %}
-<div class="row-fluid">
-<article class="span8 data-block">
+  <div class="row-fluid">
+  <article class="span8 data-block">
     <div class="data-container">
-        <header>
-            <h2>Notifications</h2>
-        </header>
-        <section>
-            {% if g.user.getAllNotes().count() == 0 %}
-                <b> All clear! :D </b>
-            {% else %}
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th class="span4">Title</th>
-                        <th class="span2">Date</th>
-                        <th class="span2">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for note in g.user.getAllNotes(date=True) %}
-                    <tr id="{{ note.id }}" class="{% if not note.read %}{{ note.ntype }}{% endif %}">
-                        <td>{{ note.title|safe }}</td>
-                        <td>{{ note.date|pretty }}</td>
-                        <td>
-                            <a class="btn btn-success btn-mini popy" data-content="{{ note.content }}" data-original-title="{{ note.title }}">Read</a>
-                            {% if not note.read %}<a id="markread" noteid="{{ note.id }}" class="btn btn-danger btn-mini" cls="{{ note.ntype }}">Archive</a>{% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
-        </section>
+      <header>
+        <h2>Notifications</h2>
+      </header>
+      <section>
+        {% if g.user.getAllNotes().count() == 0 %}
+          <b> All clear! :D </b>
+        {% else %}
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th class="span4">Title</th>
+                <th class="span2">Date</th>
+                <th class="span2">Actions</th>
+              </tr>
+             </thead>
+            <tbody>
+              {% for note in g.user.getAllNotes(date=True) %}
+                <tr id="{{ note.id }}" class="{% if not note.read %}{{ note.ntype }}{% endif %}">
+                  <td>{{ note.title|safe }}</td>
+                  <td>{{ note.date|pretty }}</td>
+                  <td>
+                  <a class="btn btn-success btn-mini popy" data-content="{{ note.content }}" data-original-title="{{ note.title }}">Read</a>
+                  {% if not note.read %}
+                    <a id="markread" noteid="{{ note.id }}" class="btn btn-danger btn-mini" cls="{{ note.ntype }}">Archive</a>
+                  {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </section>
     </div>
-</article>
-<article class="span4 data-block data-block-alt">
+  </article>
+  <article class="span4 data-block data-block-alt">
     <div class="data-container">
-        <header>
-            <h2>Statistics</h2>
-        </header>
-        <section>
-            <ul class="stats">
-                <li>
-                    <strong class="stats-count">{{ g.user.getFriends().count() }} </strong>
-                    <p>Friends</p>
-                    <a class="btn btn-mini btn-alt btn-primary stats-view" href="#" title="" data-original-title="View new registrations">View</a>
-                </li>
-                <li>
-                    <strong class="stats-count">{{ g.user.getForumPosts().count() }}</strong>
-                    <p>Forum Posts</p>
-                    <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#" data-original-title="View new visitros">View</a>
-                </li>
-            </ul>
-        </section>
-        
+      <header>
+        <h2>Statistics</h2>
+      </header>
+      <section>
+        <ul class="stats">
+          <li>
+            <strong class="stats-count">{{ g.user.getFriends().count() }} </strong>
+            <p>Friends</p>
+            <a class="btn btn-mini btn-alt btn-primary stats-view" href="#" title="" data-original-title="View new registrations">View</a>
+          </li>
+          <li>
+            <strong class="stats-count">{{ g.user.getForumPosts().count() }}</strong>
+            <p>Forum Posts</p>
+            <a class="btn btn-mini btn-alt btn-primary stats-view" title="" href="#" data-original-title="View new visitros">View</a>
+          </li>
+        </ul>
+      </section>
     </div>
-</article>
+  </article>
 </div>
 <div class="row-fluid">
-
-<article class="span10 data-block">
+  <article class="span10 data-block">
     <div class="data-container">
-        <header>
-            <h2>Profile</h2>
-        </header>
+      <header>
+        <h2>Profile</h2>
+      </header>
         <section>
-            <form action="/acct/edit" method="post">
-                <fieldset>
-                    <legend>Profile</legend>
-                    <div class="control-group">
-                        <label class="control-label" for="input">Tag Line</label>
-                        <div class="controls">
-                            <input id="input" class="input-xlarge" type="text" name="tag_line" value="{{ g.user.tag_line }}">
-                            <p class="help-block">This is the tagline displayed at the top of your profile page</p>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="gender">Gender</label>
-                        <div class="controls">
-                            <label class="radio">
-                                <input type="radio" name="gender" id="optionsRadios1" value="Male" checked="">
-                                Male
-                            </label>
-                            <label class="radio">
-                                <input type="radio" name="gender" id="optionsRadios2" value="Female">
-                                Female
-                            </label>
-                            <label class="radio">
-                                <input type="radio" name="gender" id="optionsRadios2" value="Unlabelable">
-                                Unlabelable
-                            </label>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="input">Location</label>
-                        <div class="controls">
-                            <input id="input" class="input-xlarge" type="text" name="location" value="{{ g.user.location }}">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="input">Youtube Username</label>
-                        <div class="controls">
-                            <input id="input" class="input-xlarge" type="text" name="youtube" value="{{ g.user.youtube }}">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="input">Twitch Username</label>
-                        <div class="controls">
-                            <input id="input" class="input-xlarge" type="text" name="twitch" value="{{ g.user.twitch }}">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="input">Twitter Username</label>
-                        <div class="controls">
-                            <input id="input" class="input-xlarge" type="text" name="twitter" value="{{ g.user.twitter }}">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="input">Skype Username</label>
-                        <div class="controls">
-                            <input id="input" class="input-xlarge" type="text" name="skype" value="{{ g.user.skype }}">
-                        </div>
-                    </div>
+          <form action="/acct/edit" method="post">
+            <fieldset>
+              <legend>Profile</legend>
+              <div class="control-group">
+                <label class="control-label" for="input">Tag Line</label>
+                <div class="controls">
+                  <input id="input" class="input-xlarge" type="text" name="tag_line" value="{{ g.user.tag_line }}">
+                  <p class="help-block">This is the tagline displayed at the top of your profile page</p>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="gender">Gender</label> {{ g.user.gender }}
+                <div class="controls">
+                  <label class="radio">
+                    <input type="radio" name="gender" id="optionsRadios1" value="Male" {% if g.user.gender == "Male" %} checked="" {% endif %}>
+                    Male
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="gender" id="optionsRadios2" value="Female" {% if g.user.gender == "Female" %} checked="" {% endif %}>
+                    Female
+                  </label>
+                  <label class="radio">
+                    <input type="radio" name="gender" id="optionsRadios2" value="Unlabelable" {% if g.user.gender == "Unlabelable" %} checked="" {% endif %}>
+                    Unlabelable
+                  </label>
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="input">Location</label>
+                <div class="controls">
+                  <input id="input" class="input-xlarge" type="text" name="location" value="{{ g.user.location }}">
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="input">Youtube Username</label>
+                <div class="controls">
+                  <input id="input" class="input-xlarge" type="text" name="youtube" value="{{ g.user.youtube }}">
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="input">Twitch Username</label>
+                <div class="controls">
+                  <input id="input" class="input-xlarge" type="text" name="twitch" value="{{ g.user.twitch }}">
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="input">Twitter Username</label>
+                <div class="controls">
+                  <input id="input" class="input-xlarge" type="text" name="twitter" value="{{ g.user.twitter }}">
+                </div>
+              </div>
+              <div class="control-group">
+                <label class="control-label" for="input">Skype Username</label>
+                <div class="controls">
+                  <input id="input" class="input-xlarge" type="text" name="skype" value="{{ g.user.skype }}">
+                </div>
+              </div>
 
-                    <div class="control-group">
-                        <label class="control-label" for="input">Description</label>
-                        <div class="controls">
-                           <textarea class="wysihtml" style="width: 98%" rows="8" name="description">{{ g.user.description }}</textarea>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button class="btn btn-alt btn-large btn-primary" type="submit" id="submitbut">Save changes</button>
-                    </div>
-                </fieldset>
-            </form>
+              <div class="control-group">
+                <label class="control-label" for="input">Description</label>
+                <div class="controls">
+                  <textarea class="wysihtml" style="width: 98%" rows="8" name="description">{{ g.user.description }}</textarea>
+                </div>
+              </div>
+              
+              <div class="form-actions">
+                <button class="btn btn-alt btn-large btn-primary" type="submit" id="submitbut">Save changes</button>
+              </div>
+            </fieldset>
+          </form>
         </section> 
-    </div>
-</article>
-<article class="span2 data-block">
-</article>
-
+      </div>
+  </article>
+  <article class="span2 data-block">
+  </article>
 </div>
 {% endblock %}
 

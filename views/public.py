@@ -86,7 +86,7 @@ def routeRegister():
 def routeProfile(user=None):
     if not user:
         return flashy("You must specify a user!", "error", "/")
-    u = User.select().where(User.username == user)
+    u = User.select().where(User.username ** user)
     if u.count():
         return render_template("profile.html", user=u[0], ustat=UserStats(u[0].username))
     return flashy("No such user '%s'" % user, "error", "/")
