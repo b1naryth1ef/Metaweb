@@ -50,17 +50,18 @@
                 {% for p in posts %}
                 <tr>
                     <td>
+                        {% if p.sticky and board %}<i style="float: right;" class="icon-star"></i> {% endif %}
+                        {% if p.locked and board %}<i style="float: right;" class="icon-lock"></i> {% endif %}
                         <img src="https://minotar.net/avatar/{{ p.author.username }}/35" style="float: left; margin-right: 5px;" class="img-rounded">
                         <h3 style="margin: 0px;"><a href="/forum/b/{{ p.forum.id }}/{{ p.id }}">{{ p.title }}</a> </h3>
-                        {% if p.sticky and board %}<i class="icon-star"></i> {% endif %}
-                        {% if p.locked and board %}<i class="icon-lock"></i> {% endif %}
-                        <h5 style="margin: 0px;">By <a href="/u/{{ p.author.username }}">{{ p.author.username }}</a>, {{ p.date|pretty }}</h5>
+                        
+                        <h5 style="margin: 0px; margin-top: 3px;">By <a href="/u/{{ p.author.username }}">{{ p.author.username }}</a> <span style="float: right;">{{ p.date|pretty }}</span></h5>
                     </td>
                     <td>
                         {% set rep = p.getLatestPost() %}
                         <img src="https://minotar.net/avatar/{{ rep.author.username }}/35" style="float: left; margin-right: 5px;" class="img-rounded">
                         <h3 style="margin: 0px;"><a href="/forum/b/{{ p.forum.id }}/{{ rep.id }}">{{ rep.author.username }}</a></h4>
-                        <h5 style="margin: 0px;"><a href="rep.getUrl()">{{ p.getLatestPost().date|pretty }}</a></h5>
+                        <h5 style="margin: 0px; margin-top: 3px;"><a href="rep.getUrl()">{{ p.getLatestPost().date|pretty }}</a></h5>
                     </td>
                     <td style="text-align: center"><h3>{{ p.getNumberPosts() }}</h3></td>
                     <td style="text-align: center"><h3>{{ p.views }}</h3></td>

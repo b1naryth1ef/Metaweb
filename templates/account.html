@@ -34,7 +34,7 @@
                   <td>{{ note.date|pretty }}</td>
                   <td>
                   <a noteid="{{ note.id }}" act="markread" class="{% if not note.read %}noteact{% endif %} btn btn-success btn-mini popy" data-content="{{ note.content }}" data-original-title="{{ note.title }}">Read</a>
-                  <a noteid="{{ note.id }}" class="btn btn-danger btn-mini noteact" act="delete" cls="{{ note.ntype }}">Delete</a>
+                  <a noteid="{{ note.id }}" class="noterefy btn btn-danger btn-mini noteact" act="delete" cls="{{ note.ntype }}">Delete</a>
                   </td>
                 </tr>
               {% endfor %}
@@ -160,14 +160,9 @@ $(document).ready(function() {
     // Mark stuff read
     $('.noteact').click(function() {
       $.get("/acct/note/"+$(this).attr("noteid")+"/"+$(this).attr("act"), function (data) {
-        location.reload()
+        location.reload(); //@TODO fix this
       });
     })
-    // $('#markread').click(function(){
-    //     $.get("/acct/note/"+$(this).attr("noteid")+"/markread", function(data){
-    //         location.reload()
-    //     });
-    // });
 });
 </script>
 <script src="/static/js/plugins/wysihtml5/wysihtml5-0.3.0.js"></script>

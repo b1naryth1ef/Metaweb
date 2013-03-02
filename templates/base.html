@@ -50,8 +50,7 @@
                     </div>
                   </div>
                   {% if g.user.getNoteCount() %}
-                    <div class="alert alert-warning" style="margin-top: 10px">
-                      <button class="close" data-dismiss="alert">×</button>
+                    <div class="alert alert-warning" style="margin-top: 10px; text-align: center;">
                       <strong>You have <a href="/acct/">{{ g.user.getNoteCount() }} {{ "notification"|plural(g.user.getNoteCount()) }}</a>!</strong>
                     </div>
                   {% endif %}
