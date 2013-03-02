@@ -139,7 +139,7 @@ def routeEditPostPage(id=None):
     if p.isLocked(): return flashy("Post is locked!", "error", p.getUrl())
     if p.author != g.user and g.user.level < 60: return flashy("You dont have permission to do that!", "error", "/forum")
     if not request.form.get("post") or not request.form.get("content"):
-        return render_template("forum.html", epost=p)
+        return render_template("forum.html", epost=p, cats=cats = Forum.select().where((Forum.perm_view <= level) & (Forum.cat == True)).order_by(Forum.order))
 
     p.content = request.form.get("content")
     p.save()

@@ -90,8 +90,10 @@ class User(BaseModel):
             return '<span class="label label-success">Donator</span>'
         elif id == 40:
             return '<span class="label label-info">Community Contributor</span>'
-        elif id == 45:
+        elif id == 41:
             return '<span class="label label-info">Map Developer</span>'
+        elif id == 42:
+            return '<span class="label label-info">Beta Tester</span>'
         elif id == 50:
             return '<span class="label label-warning">Junior Moderator</span>'
         elif id == 60:
