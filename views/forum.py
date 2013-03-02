@@ -44,6 +44,8 @@ def routePost(bid=None, pid=None, page=1):
     p = ForumPost.select().where(ForumPost.id == int(pid))
     if not p.count():
         return flashy("No such post!", "error", "/forum")
+    p[0].views += 1 #@DEV redis this?
+    p[0].save()
     follows = followsPost(p[0])
     cats = Forum.select().where((Forum.perm_view <= level) & (Forum.cat == True)).order_by(Forum.order)
     return render_template("forum.html", post=p[0], cats=cats, page=int(page), follows=follows)

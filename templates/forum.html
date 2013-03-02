@@ -2,7 +2,8 @@
 {% block css %}
 <link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
 {% endblock %}
-{% block header %}
+{% block gheader %}
+<header class="page-header" style="border-bottom: none;">
 {% if not post and not board %}
     <h1>Recent Posts</h1>
 {% elif board %}
@@ -26,7 +27,9 @@
 {% elif epost %}
 <h1>Editing Post</h1>
 {% endif %}
+</header>
 {% endblock %}
+
 
 {% block content %}
 <div class="row-fluid">
@@ -37,8 +40,7 @@
             <thead>
                 <tr>
                     <th class="span4">Topic</th>
-                    <th class="span2">Author</th>
-                    <th class="span2">Latest</th>
+                    <th class="span3">Latest</th>
                     <th class="span1">Posts</th>
                     <th class="span1">Views</th>
                 </tr>
@@ -47,11 +49,21 @@
                 
                 {% for p in posts %}
                 <tr>
-                    <td><a href="/forum/b/{{ p.forum.id }}/{{ p.id }}">{{ p.title }}</a> {% if p.sticky and board %}<i class="icon-star"></i> {% endif %}{% if p.locked and board %}<i class="icon-lock"></i> {% endif %}</td>
-                    <td><a href="/u/{{p.author.username}}">{{ p.author.username }}</a></td>
-                    <td><a href="/forum/b/{{ p.forum.id }}/{{ p.getLatestPost().id }}">{{ p.getLatestPost().author.username }}</a></td>
-                    <td>{{ p.getNumberPosts() }}</td>
-                    <td>{{ p.views }}</td>
+                    <td>
+                        <img src="https://minotar.net/avatar/{{ p.author.username }}/35" style="float: left; margin-right: 5px;" class="img-rounded">
+                        <h3 style="margin: 0px;"><a href="/forum/b/{{ p.forum.id }}/{{ p.id }}">{{ p.title }}</a> </h3>
+                        {% if p.sticky and board %}<i class="icon-star"></i> {% endif %}
+                        {% if p.locked and board %}<i class="icon-lock"></i> {% endif %}
+                        <h5 style="margin: 0px;">By <a href="/u/{{ p.author.username }}">{{ p.author.username }}</a>, {{ p.date|pretty }}</h5>
+                    </td>
+                    <td>
+                        {% set rep = p.getLatestPost() %}
+                        <img src="https://minotar.net/avatar/{{ rep.author.username }}/35" style="float: left; margin-right: 5px;" class="img-rounded">
+                        <h3 style="margin: 0px;"><a href="/forum/b/{{ p.forum.id }}/{{ rep.id }}">{{ rep.author.username }}</a></h4>
+                        <h5 style="margin: 0px;"><a href="rep.getUrl()">{{ p.getLatestPost().date|pretty }}</a></h5>
+                    </td>
+                    <td style="text-align: center"><h3>{{ p.getNumberPosts() }}</h3></td>
+                    <td style="text-align: center"><h3>{{ p.views }}</h3></td>
                 </tr>
                 {% endfor %}
                 
