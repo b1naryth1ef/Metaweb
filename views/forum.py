@@ -92,6 +92,9 @@ def routeReplyPost():
         title=None)
     r.save()
 
+    p.last_update = datetime.now()
+    p.save()
+
     if g.redis.scard("meta.forum.post.%s.follows" % p.id): #@DEV thread?
         for user in g.redis.smembers("meta.forum.post.%s.follows" % p.id):
             u = User.select().where(User.id == int(user))
@@ -124,6 +127,24 @@ def routeLockPost(id=None):
     p.locked = True
     p.save()
     return flashy("Locked post!", "success", "/forum")
+
+@forum.route("/editpost/<int:id>")
+@forum.route("/editpost", methods=['POST'])
+@reqLogin
+def routeEditPostPage(id=None):
+    if not id: id = request.form.get("post")
+    p = ForumPost.select().where(ForumPost.id == int(id))
+    if not p.count(): return flashy("Invalid Post!", "error", "/forum")
+    p = p[0]
+    if p.isLocked(): return flashy("Post is locked!", "error", p.getUrl())
+    if p.author != g.user and g.user.level < 60: return flashy("You dont have permission to do that!", "error", "/forum")
+    if not request.form.get("post") or not request.form.get("content"):
+        return render_template("forum.html", epost=p)
+
+    p.content = request.form.get("content")
+    p.save()
+
+    return flashy("Post edited!", "success", p.getUrl())
 
 @forum.route('/followpost/<int:id>')
 @reqLogin

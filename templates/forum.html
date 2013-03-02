@@ -23,6 +23,8 @@
     </ul>
     <h1 style="margin: 0px;">Thread: {% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
     <h3 style="margin: 0px;">Started By: {% if post.original %}{{ post.original.author.username}}{% else %}{{ post.author.username }}{% endif %}</h3>
+{% elif epost %}
+<h1>Editing Post</h1>
 {% endif %}
 {% endblock %}
 
@@ -66,7 +68,7 @@
 
                 <h2>{{ post.title }}</h2>
                 <ul class="data-header-actions">
-                  <li><i class="icon icon-user"></i> {{ post.author.username }}</li>
+                  <li><i class="icon icon-user"></i> <a href="/u/{{ post.author.username }}">{{ post.author.username }}</a></li>
                   <li><i class="icon icon-calendar"></i> {{ post.date|pretty }}</li>
                   
                </ul>
@@ -83,7 +85,7 @@
                         {% endif %}
                       {% if post.author == g.user or g.user.level >= 60 %}
                         <a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ post.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
-                        <a class="btn btn-mini btn-alt btn-success" id="edit" post="{{ post.id }}">Edit</a>
+                        <a class="btn btn-mini btn-alt btn-success" href="/forum/editpost/{{ post.id }}">Edit</a>
                         {% if g.user.level >= 60 and not post.locked %}
                                 <a class="btn btn-mini btn-alt btn-warning" id="lock" href="/forum/lockpost/{{ post.id }}">Lock</a>
                         {% endif %}
@@ -96,11 +98,11 @@
                     <h4 class="entry-header"></h4>
                     <p class="entry-content">{{ i.content|safe }}</p>
                     <p class="entry-details">
-                        Posted by <a href="#">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time>
+                        Posted by <a href="/u/{{ i.author.username }}">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time>
                         {% if g.user %}
                             {% if i.author == g.user or g.user.level >= 60 %}
                                 <a class="btn btn-mini btn-alt btn-danger popy push-right" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
-                                <a style="margin-right: 5px;" class="btn btn-mini btn-alt btn-success push-right" id="edit" post="{{ i.id }}">Edit</a>
+                                <a style="margin-right: 5px;" class="btn btn-mini btn-alt btn-success push-right" href="/forum/editpost/{{ i.id }}">Edit</a>
                             {% endif %}
                         {% endif %}
                     </p>
@@ -119,6 +121,28 @@
     </div>
 {% endif %}
 
+        </div>
+    </article>
+    {% elif epost %}
+    <article class="span9 data-block">
+        <div class="data-container">
+            <section>
+                 <form action="/forum/editpost" method="post">
+                <fieldset>
+                    <input type="hidden" name="post" value="{{ epost.id }}">
+                    <div class="control-group">
+                        <div class="controls">
+                           <textarea class="wysihtml" style="width: 98%" rows="8" id="content" name="content">{{ epost.content }}</textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button class="btn btn-alt btn-primary" type="submit" id="submitbut">Edit Post</button>
+                    </div>
+                </fieldset>
+              </form>
+            </section>
+            
         </div>
     </article>
     {% endif %}
@@ -207,12 +231,6 @@
                 "image": true, //Button to insert an image. Default true,
                 "color": true //Button to change color of font  
             });
-        
-        $('.edit').click(function(){
-            //alert($("#post-"+$(this).attr("post")).html())
-            //x.editor.setValue($("#post-"+$(this).attr("post")).html());
-            $('#postmodal').modal("show")
         });
-    });
 </script>
 {% endblock %}

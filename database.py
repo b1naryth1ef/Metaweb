@@ -159,6 +159,11 @@ class ForumPost(BaseModel):
     locked = BooleanField(default=False)
     last_update = DateTimeField(default=datetime.now)
 
+    def isLocked(self):
+        if self.original:
+            return self.original.locked
+        return self.locked
+
     def getUrl(self):
         if self.original: id = self.original.id
         else: id = self.id

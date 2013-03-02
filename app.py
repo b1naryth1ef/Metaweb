@@ -22,7 +22,7 @@ app.register_blueprint(public)
 app.register_blueprint(admin, url_prefix="/admin")
 app.register_blueprint(acct, url_prefix="/acct")
 app.register_blueprint(forum, url_prefix="/forum")
-sentry = Sentry(app)
+#sentry = Sentry(app)
 db.connect()
 
 #Load Commits
