@@ -16,6 +16,12 @@ friend_accpt_msg = """<a href="/p/{user}">{user}</a> is now your friend!"""
 @acct.route("/")
 @reqLogin
 def routeIndex():
+    if g.user.getAllNotes().count() == 50:
+        flash("Your notification count has reached the limit of 50. If you recieve any more notifications, your backlog will be trimmed to the latest 10!")
+    elif g.user.getAllNotes().count() > 50:
+        flash("Your notification count has exceded the limit of 50! Trimming to the latest 10 notifications...")
+        for i in g.user.getAllNotes().order_by(Notification.date).limit(40):
+            i.delete_instance()
     return render_template("account.html")
 
 @acct.route("/friend/<user>/<action>")
@@ -82,6 +88,10 @@ def routeNotes(id=None, action=None):
     if action == "markread":
         note.read = True
         note.save()
+        return "success"
+
+    if action == "delete":
+        note.delete_instance()
         return "success"
 
 @acct.route('/edit', methods=['POST'])

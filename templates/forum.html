@@ -69,6 +69,11 @@
                   <li><i class="icon icon-user"></i> {{ post.author.username }}</li>
                   <li><i class="icon icon-calendar"></i> {{ post.date|pretty }}</li>
                   {% if g.user %}
+                        {% if follows %}
+                            <li style="margin-left: 5px;"><a href="/forum/ignorepost/{{ post.id }}" class="btn btn-mini btn-alt btn-primary"><i>Unfollow</i></a></li>
+                        {% else %}
+                            <li style="margin-left: 5px;"><a href="/forum/followpost/{{ post.id }}" class="btn btn-mini btn-alt btn-primary">Follow</a></li>
+                        {% endif %}
                       {% if post.author == g.user or g.user.level >= 60 %}
                         <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ post.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a></li>
                         <li style="margin-left: 5px;"><a class="btn btn-mini btn-alt btn-success" id="edit" post="{{ post.id }}">Edit</a></li>

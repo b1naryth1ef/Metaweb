@@ -159,6 +159,11 @@ class ForumPost(BaseModel):
     locked = BooleanField(default=False)
     last_update = DateTimeField(default=datetime.now)
 
+    def getUrl(self):
+        if self.original: id = self.original.id
+        else: id = self.id
+        return "/forum/b/%s/%s:%s" % (self.forum.id, id, self.getPage())
+
     def getPage(self): #@DEV inefficient
         if not self.original: return 1
         q = [i for i in ForumPost.select().where(ForumPost.original == self.original).order_by(ForumPost.date)]
