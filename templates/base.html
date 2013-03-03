@@ -54,6 +54,12 @@
                       <strong>You have <a href="/acct/">{{ g.user.getNoteCount() }} {{ "notification"|plural(g.user.getNoteCount()) }}</a>!</strong>
                     </div>
                   {% endif %}
+                  {% set icount = g.ruser.getActiveInfractionCount(disputed=True, seen=True) %}
+                  {% if icount > 0 %}
+                    <div class="alert alert-danger" style="margin-top: 10px; text-align: center;">
+                      <strong>You have <a href="/acct/">{{ icount }} {{ "infraction"|plural(icount) }}</a>! This could result in a perma ban if you do not respond!</strong>
+                    </div>
+                  {% endif %}
                 {% endif %}
                 
                 <nav class="main-navigation iconic" role="navigation">
@@ -172,7 +178,7 @@
                             {% for com in g.changes %}
                             <div class="entry">
                               <h4 class="entry-header">
-                                <span class="fam-database-save"></span> {{ com.name_rev[:6] }} <time datetime="2012-09-18">{{ com.committed_date|commitdate }}</time>
+                                <span class="fam-database-save"></span> {{ com.name_rev[:6] }} <time datetime="2012-09-18">{{ com.committed_date|rawdate }}</time>
                               </h4>
                               <p class="entry-content">{{ com.summary}}</p>
                               <p class="entry-details">Pushed by <a href="/u/{{ com.author.name }}">{{ com.author.name }}</a></p>
@@ -233,7 +239,9 @@
         <script src="/static/js/navigation.js"></script>
         <script src="/static/js/bootstrap/bootstrap.min.js"></script>
         
-
+        <script>
+          $('.toolzor').tooltip({"html":true, "placement":"bottom"})
+        </script>
         <!-- jQuery Flot Charts -->
         <!--[if lte IE 8]>
             <script language="javascript" type="text/javascript" src="/static/js/plugins/flot/excanvas.min.js"></script>

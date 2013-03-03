@@ -2,7 +2,6 @@ from flask import flash, g, redirect
 from functools import wraps
 import os
 
-
 def flashy(m, f, u):
     flash(m, f)
     return redirect(u)

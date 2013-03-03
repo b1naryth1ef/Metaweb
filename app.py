@@ -1,9 +1,10 @@
 from flask import Flask, g, session
 from flask.ext.gravatar import Gravatar
 from datetime import datetime
-from raven.contrib.flask import Sentry
+#from raven.contrib.flask import Sentry
 from database import *
 from git import *
+from ruser import RUser
 import os, redis, json
 
 #Views
@@ -48,6 +49,7 @@ def beforeRequest():
     g.changes = changes
     if session.get('u'):
         g.user = User.select().where(User.username == session['u']).get()
+        g.ruser = RUser(g.user.username, g.user.id, g.redis)
     else:
         g.user = None
 
@@ -71,8 +73,18 @@ def pluralize(a, b):
     else:
         return a+"s"
 
-@app.template_filter("commitdate")
-def commit_date(i):
+@app.template_filter("expired")
+def expired(i):
+    if datetime.now() > i: return True
+    return False
+
+@app.template_filter("rawtime")
+def raw_time(i):
+    obj = datetime.fromtimestamp(int(i))
+    return obj
+
+@app.template_filter("rawdate")
+def raw_date(i):
     obj = datetime.fromtimestamp(int(i))
     return pretty_date(obj)
 

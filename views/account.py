@@ -106,3 +106,36 @@ def routeEdit():
     g.user.save()
 
     return flashy("Edited profile!", "success", "/acct")
+
+@acct.route('/infraction/<int:id>')
+@reqLogin
+def routeInfraction(id):
+    if id >= g.ruser.getInfractionCount():
+        return flashy("Invalid infraction ID!", "error", "/acct")
+
+    i = g.ruser.getInfraction(id)
+    i['id'] = id
+
+    if not i['seen']:
+        i['seen'] = True
+        g.ruser.updateInfraction(id, i)
+
+    return render_template("infraction.html", inf=i)
+
+@acct.route("/disp_infraction/", methods=['POST'])
+@reqLogin
+def routeDisputeInfraction():
+    if not request.form.get("inf") or not request.form.get("content") or not request.form.get("inf").isdigit():
+        return flashy("Invalid dispute request!", "error", "/acct")
+    id = int(request.form.get("inf"))
+
+    if id >= g.ruser.getInfractionCount():
+        return flashy("Invalid Infraction ID!", "error", "/acct")
+
+    i = g.ruser.getInfraction(id)
+    if i:
+        i['status'] = 1
+        i['dispute'] = request.form.get("content")
+        g.ruser.updateInfraction(id, i)
+        return flashy("Dispute sent! Please allow up too 3-5 days for an admin response.", "success", "/acct")
+    return flashy("Error!", "error", "/acct")

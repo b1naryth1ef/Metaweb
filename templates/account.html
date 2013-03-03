@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row-fluid">
+<div class="row-fluid">
   <article class="span9 data-block">
     <div class="data-container">
       <header>
@@ -22,7 +22,7 @@
           <table class="table table-bordered">
             <thead>
               <tr>
-                <th class="span4">Title</th>
+                <th class="span5">Title</th>
                 <th class="span2">Date</th>
                 <th class="span2">Actions</th>
               </tr>
@@ -36,6 +36,51 @@
                   <a noteid="{{ note.id }}" act="markread" class="{% if not note.read %}noteact{% endif %} btn btn-success btn-mini popy" data-content="{{ note.content }}" data-original-title="{{ note.title }}">Read</a>
                   <a noteid="{{ note.id }}" class="noterefy btn btn-danger btn-mini noteact" act="delete" cls="{{ note.ntype }}">Delete</a>
                   </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </section>
+    </div>
+    <div class="data-container">
+      <header>
+        <h2>Infractions</h2>
+      </header>
+      <section>
+        {% if g.ruser.getInfractionCount() == 0 %}
+          <b><i> You've been a good {% if g.user.gender == "Female" %}girl{% else %} boy{% endif %}! Make sure to <a href="/p/rules">read the rules</a> to keep it that way!</i></b>
+        {% else %}
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th class="span1">Status</th>
+                <th class="span1">Mod/Admin</th>
+                <th class="span2">Date</th>
+                <th class="span1">Type</th>
+                <th class="span3">Description</th>
+                <th class="span1">Actions</th>
+              </tr>
+             </thead>
+            <tbody>
+              {% for inf in g.ruser.getInfractions(rev=True) %}
+                <tr class="{% if inf['status'] == 2 %}success{% elif inf['status'] == 3 %}error{% elif inf['status'] == 0 %}warning{% endif %}">
+                  <td>
+                    {% if inf['status'] == 0 %}
+                      Undisputed
+                    {% elif inf['status'] == 1 %}
+                      Waiting
+                    {% elif inf['status'] == 2 %}
+                      Accepted
+                    {% elif inf['status'] == 3 %}
+                      Denied
+                    {% endif %}
+                  </td>
+                  <td><a href="/u/{{ inf['mod'] }}">{{ inf['mod'] }}</a></td>
+                  <td>{{ inf['time']|rawdate }}</td>
+                  <td>{{ inf['type'] }}</td>
+                  <td>{{ inf['msg'] }}</td>
+                  <td><a href="/acct/infraction/{{ inf['id'] }}" class="btn btn-success btn-mini popy">View</a></td>
                 </tr>
               {% endfor %}
             </tbody>

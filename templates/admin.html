@@ -38,6 +38,51 @@
             </div>
         </section>
     </div>
+    <div class="data-container">
+      <header>
+        <h2>Infractions</h2>
+      </header>
+      <section>
+        {% if ruser.getInfractionCount() == 0 %}
+          <b><i>This user has no infractions</i></b>
+        {% else %}
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th class="span1">Status</th>
+                <th class="span1">Mod/Admin</th>
+                <th class="span2">Date</th>
+                <th class="span1">Type</th>
+                <th class="span4">Description</th>
+                <th class="span1">Actions</th>
+              </tr>
+             </thead>
+            <tbody>
+              {% for inf in ruser.getInfractions() %}
+                <tr class="{% if inf['status'] == 2 %}success{% elif inf['status'] == 3 %}error{% elif inf['status'] == 1 %}warning{% endif %}">
+                  <td>
+                    {% if inf['status'] == 0 %}
+                      Undisputed
+                    {% elif inf['status'] == 1 %}
+                      Waiting
+                    {% elif inf['status'] == 2 %}
+                      Accepted
+                    {% elif inf['status'] == 3 %}
+                      Denied
+                    {% endif %}
+                  </td>
+                  <td><a href="/u/{{ inf['mod'] }}">{{ inf['mod'] }}</a></td>
+                  <td>{{ inf['time']|rawdate }}</td>
+                  <td>{{ inf['type'] }}</td>
+                  <td>{{ inf['msg'] }}</td>
+                  <td><a href="/admin/infraction/{{ user.id }}/{{ loop.index0 }}" class="btn btn-success btn-mini popy">View</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% endif %}
+      </section>
+    </div>
 </article>
 {% else %}
 <article class="span8 data-block">
@@ -99,11 +144,12 @@
       <section>
         <div class="row-fluid">
         {% for u in users %}
-        <div class="userli span2" style="max-width: 120px; text-align: center;">
+        {% set ur = RUser(u.username, u.id, g.redis) %}
+        <div class="userli span2" style="max-width: 120px; text-align: center; {% if ur.getActiveInfractionCount(waiting=True) > 0 %}border: 1px solid #ffbe18;{% endif %}">
           <img src="https://minotar.net/avatar/{{ u.username }}/60">
           <h4 class="entry-header" style="margin: 4px 0;"><a href="/u/{{ u.username }}">{{ u.username }}</a></h4>
           <p class="entry-content" style="margin: 0 0 0px;">
-            <a class="btn btn-mini btn-alt btn-success" title="" href="/u/{{ u.username }}">View</a>
+            <a class="btn btn-mini btn-alt btn-success" title="" href="/u/{{ u.username }}">Profile</a>
             <a class="btn btn-mini btn-alt btn-danger" title="" href="/admin/u/{{ u.id }}">Edit</a>
           </p>
         </div>

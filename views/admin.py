@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, request, g, sessi
 from util import reqLogin, reqLevel, flashy
 from database import *
 from datetime import datetime
+from ruser import RUser
 import json, markdown
 
 admin = Blueprint('admin', __name__)
@@ -17,7 +18,7 @@ def routeUser(user=None):
     u = User.select().where(User.id == user)
     if not u.count():
         return flashy("That user does not exist!", "error", "/admin/")
-    return render_template("admin.html", user=u[0])
+    return render_template("admin.html", user=u[0], ruser=RUser(u[0].username, u[0].id, g.redis))
 
 @admin.route('/u/warn_user', methods=['POST']) #This is special: jquery API stuff
 @reqLevel(60)
@@ -64,7 +65,7 @@ def routeSetGroup():
 @reqLevel(60)
 def routeIndex(page=1):
     users = User.select().paginate(page, 50)
-    return render_template("admin.html", stats=getStats(), users=users, page=page)
+    return render_template("admin.html", stats=getStats(), users=users, page=page, RUser=RUser)
 
 @admin.route('/edit/<id>')
 @admin.route('/delete/<id>')
@@ -94,3 +95,19 @@ def routeEditPage(): pass
 
 @admin.route('/page/delete/<id>')
 def routeDeletPage(id=None): pass
+
+@admin.route("/infraction/<int:uid>/<int:id>")
+@admin.route("/infraction/<int:uid>/<int:id>/<action>")
+def routeViewInfraction(uid, id, action=None):
+    u = User.select().where(User.id == int(uid))
+    if not u.count(): return flashy("Invalid user id!", "error", "/admin")
+    o = RUser(u[0].username, u[0].id, g.redis)
+    if id >= o.getInfractionCount(): return flashy("Invalid infraction ID!", "error", "/admin")
+    inf = o.getInfraction(id)
+    inf['id'] = id
+
+    if not action: return render_template("infraction.html", inf=inf, infu=u[0])
+    if action == "deny": inf['status'] = 3
+    elif action == "accept": inf['status'] = 2
+    o.updateInfraction(id, inf)
+    return flashy("Infraction updated!", "success", "/admin/")

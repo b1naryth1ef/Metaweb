@@ -92,11 +92,14 @@ def routeProfile(user=None):
         return render_template("profile.html", user=u[0], ustat=UserStats(u[0].username))
     return flashy("No such user '%s'" % user, "error", "/")
 
-@public.route("/p/<int:id>")
+@public.route("/p/<id>")
 def routePage(id=None):
-    p = Page().select().where(Page.id==id)
-    if not p.count():
-        return flashy("No such page!", "error", "/")
+    if id.isdigit():
+        p = Page().select().where(Page.id==id)
+    else:
+        p = Page().select().where(Page.title**id)
+    if not p.count() == 1:
+        return flashy("Error finding page!", "error", "/")
     return render_template("page.html", page=p[0])
 
 @public.route("/register/", methods=["GET", "POST"])

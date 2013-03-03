@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block css %}
+  <link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
+  <style>
+  h2 {
+    margin: 5px;
+  }
+  </style>
+{% endblock %}
+
+{% block header %}
+<ul class="page-header-actions">
+    {% if not infu and inf['type'] == "ban" or inf['type'] == "tban" %}
+    <li>  
+      <a href="" style="float: right;" data-toggle="modal" data-target="#disputemodal" class="btn btn-alt btn-success btn-large {% if inf['status'] != 0 or not inf['active'] %}disabled{% endif %}">Dispute</a>
+    </li>
+    {% elif inf['status'] == 1 %}
+      <li><a href="/admin/infraction/{{ infu.id }}/{{ inf['id'] }}/accept" style="float: right;" class="btn btn-alt btn-success btn-large">Accept</a></li>
+      <li><a href="/admin/infraction/{{ infu.id }}/{{ inf['id'] }}/deny" style="float: right;" class="btn btn-alt btn-danger btn-large">Deny</a></li>
+    {% endif %}
+  </ul>
+  <h1>Infraction #{{ inf['id']+1 }} {% if infu %}against {{ infu.username }}{% endif %}</h1>
+  <h2 style="margin: 0px"><i>
+    {% if not inf['active'] %}
+      Inactive
+    {% elif inf['status'] == 0 %}
+      Undisputed
+    {% elif inf['status'] == 1 %}
+      Disputed; Awaiting Admin Review
+    {% elif inf['status'] == 2 %}
+      Dispute Accepted; Infraction is invalid
+    {% elif inf['status'] == 3 %}
+      Dispute Denied; Infraction is valid and stands
+    {% endif %}
+  </i></h2>
+  
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+  <article class="span12 data-block">
+    <div class="data-container">
+      <section>
+        <h2>Mod/Admin: <a href="/u/{{ inf['mod'] }}">{{ inf['mod'] }}</a></h2>
+        <h2>Type:
+          {% if inf['type'] == "warn" %}
+            <span style="color: #ffbe18;">Warning</span>
+          {% elif inf['type'] == "kick" %}
+            <span style="color: #ffbe18">Kick</span>
+          {% elif inf['type'] == "tban" %}
+            <span style="color: #ae1513;">Temp-Ban</span>
+          {% elif inf['type'] == "ban" %}
+            <span style="color: #ae1513;">Ban</span>
+          {% endif %}
+        </h2>
+        <h2>Date: {{ inf['time']|rawdate }}</h2>
+        {% if inf['type'] == "tban" %}
+          {% set dt = inf['expires']|rawtime %}
+          {% if dt|expired %}
+            <h2>Expires: <i>Expired</i></h2>
+          {% else %}
+            <h2>Expires: {{ dt.strftime("%d, %h %Y") }}</h2>
+          {% endif %}
+        {% endif %}
+        <h2>Message:</h2>
+        <h3 class="well small">{{ inf['msg']}}</h3>
+        {% if inf['status'] > 0 %}
+          <h2>Dispute Message:</h2>
+          <p class="well small">{{ inf['dispute']|safe }}</h3>
+        {% endif %}
+      </section>
+    </div>
+  </article>
+</div>
+{% if not infu %}
+<div class="modal hide fade" id="disputemodal">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h3>Dispute Infraction</h3>
+  </div>
+  <div class="modal-body">
+    <form action="/acct/disp_infraction/" method="post">
+      <fieldset>
+        <input type="hidden" name="inf" value="{{ inf['id'] }}">
+        <div class="control-group">
+          <label class="control-label" for="input">Dispute Message</label>
+          <div class="controls">
+            <p class="help-block">
+              Explain why we should repeal the infraction, use evidence (photos/videos) if you have it. Please make sure to read the <a href="/p/rules">rules</a> before submitting a dispute request.
+            </p>
+            <textarea class="wysihtml" style="width: 98%" rows="8" id="content" name="content"></textarea>
+          </div>
+        </div>
+          
+        <div class="form-actions">
+          <button class="btn btn-alt btn-primary" type="submit" id="submitbut">Send Dispute</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/plugins/wysihtml5/wysihtml5-0.3.0.js"></script>
+<script src="/static/js/plugins/wysihtml5/bootstrap-wysihtml5.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.popy').popover({html: true})
+        
+        var x = $('.wysihtml').wysihtml5({
+                "font-styles": false,
+        
+                "link": true, //Button to insert a link. Default true
+                "image": true, //Button to insert an image. Default true,
+                "color": true //Button to change color of font  
+            });
+        });
+</script>
+{% endblock %}
