@@ -38,7 +38,7 @@ def routeFriends(user=None, action=None):
 
     if action == "add":
         if not g.user.canFriend(user):
-            return flashy("You can't friend that user!", "error", "/")        
+            return flashy("You can't friend that user!", "error", "/")
         n = Notification(user=user, title="%s wants to be your friend!" % g.user.username, content=friend_msg.format(user=g.user.username))
         n.save()
         f = Friendship(a=g.user, b=user, confirmed=False, ignored=False, date=datetime.now(), note=n)
