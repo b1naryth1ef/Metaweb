@@ -3,7 +3,7 @@ from util import reqLogin, reqLevel, flashy
 from database import *
 from datetime import datetime
 from ruser import RUser
-import json, markdown
+import json, markdown, os
 
 admin = Blueprint('admin', __name__)
 
@@ -91,13 +91,16 @@ def routeCreatePage():
     return flashy("Page created!", "success", "/admin")
 
 @admin.route('/page/edit', methods=['POST'])
+@reqLevel(60)
 def routeEditPage(): pass
 
 @admin.route('/page/delete/<id>')
+@reqLevel(60)
 def routeDeletPage(id=None): pass
 
 @admin.route("/infraction/<int:uid>/<int:id>")
 @admin.route("/infraction/<int:uid>/<int:id>/<action>")
+@reqLevel(60)
 def routeViewInfraction(uid, id, action=None):
     u = User.select().where(User.id == int(uid))
     if not u.count(): return flashy("Invalid user id!", "error", "/admin")
@@ -111,3 +114,16 @@ def routeViewInfraction(uid, id, action=None):
     elif action == "accept": inf['status'] = 2
     o.updateInfraction(id, inf)
     return flashy("Infraction updated!", "success", "/admin/")
+
+@admin.route("/redeploy/")
+def routeRedeploy():
+    f = os.popen('ps aux | grep "gunicorn: master \[app\:app\]"').readlines()
+    if not len(f) == 1:
+        return flashy("Could not find master-PID", "error", "/admin/")
+    line = [i for i in f[0].strip().split(' ') if i != '']
+    if not len(line) == 13:
+        return flashy("Could not decipher ps line!", "error", "/admin/")
+    pid = line[1]
+    os.popen("git pull origin master")
+    flash("Redeployed", "success")
+    os.popen("kill -HUP %s" % pid)

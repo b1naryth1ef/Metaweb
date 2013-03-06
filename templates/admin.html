@@ -95,6 +95,9 @@
                 Mwhahahahh! You have so much control. You could do almost anything! But remember to respect our members and not be a dickwad. Thanks, B1n.
             </p>
         <button class="btn btn-success" data-toggle="modal" data-target="#newpage">New Page</button>
+        {% if g.user.level >= 70 %}
+            <a class="btn btn-danger" href="/admin/redeploy">Redeploy</a>
+        {% endif %}
         </section>
     </div>
 </article>
