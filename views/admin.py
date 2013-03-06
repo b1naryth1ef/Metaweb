@@ -127,3 +127,4 @@ def routeRedeploy():
     os.popen("git pull origin master")
     flash("Redeployed", "success")
     os.popen("kill -HUP %s" % pid)
+    return redirect("/admin")
