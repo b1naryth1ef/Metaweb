@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, request, g, sessi
 from util import reqLogin, reqLevel, flashy
 from datetime import datetime
 from database import *
+from ruser import RUser
 import json
 
 public = Blueprint('public', __name__)
@@ -89,7 +90,7 @@ def routeProfile(user=None):
         return flashy("You must specify a user!", "error", "/")
     u = User.select().where(User.username ** user)
     if u.count():
-        return render_template("profile.html", user=u[0], ustat=UserStats(u[0].username))
+        return render_template("profile.html", user=u[0], ruser=RUser(u[0].username, u[0].id, g.redis))
     return flashy("No such user '%s'" % user, "error", "/")
 
 @public.route("/p/<id>")

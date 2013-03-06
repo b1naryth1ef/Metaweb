@@ -2,7 +2,7 @@ from peewee import *
 from datetime import *
 import bcrypt
 
-db = SqliteDatabase('database.db')
+db = SqliteDatabase('database.db', threadlocals=True)
 
 class BaseModel(Model):
     class Meta:
@@ -209,6 +209,9 @@ class Friendship(BaseModel):
     date = DateTimeField()
     note = ForeignKeyField(Notification)
     respdate = DateTimeField(null=True)
+
+    def getNot(self, other):
+        return self.a if self.a != other else self.b
 
 Friendship.create_table(True)
 

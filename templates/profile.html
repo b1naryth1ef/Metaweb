@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block header %}
-<img style="text-align: center; float: left; margin-right: 20px;" class="{% if ustat.online() %} online {% endif %}img-polaroid" src="https://minotar.net/avatar/{{ user.username }}/60">
+<img style="text-align: center; float: left; margin-right: 20px;" class="{% if ruser.isOnline() %} online {% endif %}img-polaroid" src="https://minotar.net/avatar/{{ user.username }}/60">
 <h2 style="margin: 0px 0px; float: right;"><i>{% if user.tag_line %}"{{ user.tag_line }}"{% endif %}</i></h2>
   <h1>{{user.username}}</h1> 
   
   <h3 style="margin: 0px 0px;">
-    {% if ustat.online() %}
-      <i>Online: {{ ustat.getServer() }}</i>
+    {% if ruser.isOnline() %}
+      <i>Online: {{ ruser.getCurrentServer()['name'] }}</i>
     {% elif user.last_join %}
-      <i>Last played: {{ user.last_join|pretty }}</i>
+      {% set v = ruser.getLastServer() %}
+      <i>Last played: {{ v['etime']|rawdate }} on {{ ruser.getServerInfo(v['sid'])['name'] }}</i>
     {% else %}
       <i>Never played!</i>
     {% endif %}
@@ -92,17 +93,17 @@
         <div id="kdchartpvp" style="height: 200px; width: 200px; margin-bottom: 25px;"></div>
         <h5>PvP Stats</h5>
         <ul class="unstyled">
-          <li class="push"><span class="icon-arrow-right"></span><b>K/D:</b> {{ ustat.kd() }}</li>
-          <li class="push"><span class="icon-arrow-right"></span><b>Kills:</b> {{ ustat.kills() }}</li>
-          <li class="push"><span class="icon-arrow-right"></span><b>Deaths:</b> {{ ustat.deaths() }}</li>
+          <li class="push"><span class="icon-arrow-right"></span><b>K/D:</b> 0</li>
+          <li class="push"><span class="icon-arrow-right"></span><b>Kills:</b> 0</li>
+          <li class="push"><span class="icon-arrow-right"></span><b>Deaths:</b> 0</li>
         </ul>
         <h3>PvE</h5>
         <div id="kdchartpve" style="height: 200px; width: 200px; margin-bottom: 25px;"></div>
         <h5>PvE Stats</h5>
         <ul class="unstyled">
-          <li class="push"><span class="icon-arrow-right"></span><b>K/D:</b> {{ ustat.kd() }}</li>
-          <li class="push"><span class="icon-arrow-right"></span><b>Kills:</b> {{ ustat.kills() }}</li>
-          <li class="push"><span class="icon-arrow-right"></span><b>Deaths:</b> {{ ustat.deaths() }}</li>
+          <li class="push"><span class="icon-arrow-right"></span><b>K/D:</b> 0</li>
+          <li class="push"><span class="icon-arrow-right"></span><b>Kills:</b> 0</li>
+          <li class="push"><span class="icon-arrow-right"></span><b>Deaths:</b> 0</li>
         </ul>
       </section>
     </div>
@@ -141,8 +142,8 @@
             show: false
         }    
       }
-      var p = $.plot($("#kdchartpvp"), {{ ustat.kdchart("pvp")|safe }}, options);
-      var p = $.plot($("#kdchartpve"), {{ ustat.kdchart("pve")|safe }}, options);
+      // var p = $.plot($("#kdchartpvp"), {ustat.kdchart("pvp")|safe}, options);
+      // var p = $.plot($("#kdchartpve"), {ustat.kdchart("pve")|safe}, options);
     });
   </script>
 {% endblock %}
