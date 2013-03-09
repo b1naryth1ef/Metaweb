@@ -27,6 +27,7 @@ app.register_blueprint(forum, url_prefix="/forum")
 db.connect()
 
 #Load Commits
+missed_coms = 1
 changes = []
 repo = Repo(".")
 for i in repo.iter_commits("master", max_count=5):
@@ -50,6 +51,7 @@ def beforeRequest():
     if session.get('u'):
         g.user = User.select().where(User.username == session['u']).get()
         g.ruser = RUser(g.user.username, g.user.id, g.redis)
+        g.missed = missed_coms
     else:
         g.user = None
 
@@ -57,6 +59,15 @@ def beforeRequest():
 def postRequest(r):
     g.db.close()
     return r
+
+@app.route('/api/githook', methods=["POST"])
+def routeGitHook():
+    global missed_coms
+    if not request.remote_addr == "63.246.22.222":
+        return "Invalid IP :3"
+    for com in request.json['commits']:
+        if com['branch'] == "master": missed_coms[0] += 1
+
 
 @app.route('/api/get_num_users')
 def routeGetNumUsers():

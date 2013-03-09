@@ -96,6 +96,8 @@ class User(BaseModel):
             return '<span class="label label-info">Beta Tester</span>'
         elif id == 50:
             return '<span class="label label-warning">Junior Moderator</span>'
+        elif id == 51:
+            return '<span class="label label-warning">Junior Developer</span>'
         elif id == 60:
             return '<span class="label label-warning">Moderator</span>'
         elif id == 70:

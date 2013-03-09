@@ -65,6 +65,9 @@ def routeSetGroup():
 @reqLevel(60)
 def routeIndex(page=1):
     users = User.select().paginate(page, 50)
+    if g.missed and g.user.level >= 70:
+        s = ("are", "s") if g.missed > 1 else ("is", "")
+        flash("There %s %s git-commit%s waiting to be deployed!" % (s[0], g.missed, s[1]), "warning")
     return render_template("admin.html", stats=getStats(), users=users, page=page, RUser=RUser)
 
 @admin.route('/edit/<id>')

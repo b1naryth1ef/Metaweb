@@ -10,6 +10,7 @@ group_key = {
     41: "mapdev",
     42: "betatester",
     50: "juniormod",
+    51: "juniordev",
     60: "mod",
     70: "dev",
     80: "admin",
