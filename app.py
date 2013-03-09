@@ -27,7 +27,7 @@ app.register_blueprint(forum, url_prefix="/forum")
 db.connect()
 
 #Load Commits
-missed_coms = 1
+missed_coms = 0
 changes = []
 repo = Repo(".")
 for i in repo.iter_commits("master", max_count=5):
