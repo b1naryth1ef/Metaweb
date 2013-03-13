@@ -195,7 +195,7 @@ class ForumPost(BaseModel):
 
     def getThread(self, page=1):
         if page == 1: q = ForumPost.select().where((ForumPost.original == self)|(ForumPost.id == self.id))
-        else: q = ForumPost.select().where((ForumPost.original == self)|ad)
+        else: q = ForumPost.select().where((ForumPost.original == self))
         return q.order_by(ForumPost.date).paginate(page, 10)
 
 
