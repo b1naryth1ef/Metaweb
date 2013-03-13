@@ -134,7 +134,7 @@ class Forum(BaseModel):
         return q
 
     def getLatestPosts(self, limit):
-        return ForumPost.select().where(ForumPost.forum == self, ForumPost.first == True).order_by(ForumPost.date).limit(limit)
+        return ForumPost.select().where(ForumPost.forum == self, ForumPost.first == True).order_by(ForumPost.date.desc()).limit(limit)
 
 Forum.create_table(True)
 
