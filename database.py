@@ -189,9 +189,16 @@ class ForumPost(BaseModel):
         return ForumPost.select().where(ForumPost.original == self).count()
 
     def getReplys(self, rev=False):
-        q = ForumPost.select().where(ForumPost.original == self)
+        q = ForumPost.select().where((ForumPost.original == self)|(ForumPost.id == self.id))
         if rev: return q.order_by(ForumPost.date.desc())
         return q.order_by(ForumPost.date)
+
+    def getThread(self, page=1):
+        if page == 1: ad = (ForumPost.id == self.id)
+        else: ad = ()
+        q = ForumPost.select().where((ForumPost.original == self)|ad)
+        return q.order_by(ForumPost.date).paginate(page, 10)
+
 
 ForumPost.create_table(True)
 

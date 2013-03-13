@@ -74,68 +74,7 @@
         <h3>Nothing here!</h3>
         {% endif %}
     </article>
-    {% elif post %}
-    <article class="span9 data-block">
-        <div class="data-container">
-            <header>
 
-                <h2>{{ post.title }}</h2>
-                <ul class="data-header-actions">
-                  <li><i class="icon icon-user"></i> <a href="/u/{{ post.author.username }}">{{ post.author.username }}</a></li>
-                  <li><i class="icon icon-calendar"></i> {{ post.date|pretty }}</li>
-                  
-               </ul>
-            </header>
-            <section id="post-{{ post.id }}">
-                {{ post.content|safe }}
-            </section>
-            <footer style="margin-top: 15px;">
-                {% if g.user %}
-                        {% if follows %}
-                            <a href="/forum/ignorepost/{{ post.id }}" class="btn btn-mini btn-alt btn-primary"><i>Unfollow</i></a>
-                        {% else %}
-                            <a href="/forum/followpost/{{ post.id }}" class="btn btn-mini btn-alt btn-primary">Follow</a>
-                        {% endif %}
-                      {% if post.author == g.user or g.user.level >= 60 %}
-                        <a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ post.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
-                        <a class="btn btn-mini btn-alt btn-success" href="/forum/editpost/{{ post.id }}">Edit</a>
-                        {% if g.user.level >= 60 and not post.locked %}
-                                <a class="btn btn-mini btn-alt btn-warning" id="lock" href="/forum/lockpost/{{ post.id }}">Lock</a>
-                        {% endif %}
-                      {% endif %}
-                    {% endif %}
-            </footer>
-        {% for i in post.getReplys().paginate(page, 10) %}
-        <section id="post-{{ i.id }}">
-                <div class="entry">
-                    <h4 class="entry-header"></h4>
-                    <p class="entry-content">{{ i.content|safe }}</p>
-                    <p class="entry-details">
-                        Posted by <a href="/u/{{ i.author.username }}">{{ i.author.username }}</a> <time>{{ i.date|pretty }}</time>
-                        {% if g.user %}
-                            {% if i.author == g.user or g.user.level >= 60 %}
-                                <a class="btn btn-mini btn-alt btn-danger popy push-right" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
-                                <a style="margin-right: 5px;" class="btn btn-mini btn-alt btn-success push-right" href="/forum/editpost/{{ i.id }}">Edit</a>
-                            {% endif %}
-                        {% endif %}
-                    </p>
-                </div>
-            </section>
-        {% endfor %}
-        {% if post.getReplys().count() > 10 %}
-    <div class="pagination" style="text-align: center;">
-        <ul>
-            <li {% if page == 1 %} class="disabled"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ page-1 }}"><span class="icon-arrow-left"></span></a></li>
-            {% for pg in (post.getReplys().count()/10)|pages %}
-                <li {% if pg == page %}class="active"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ pg }}">{{ pg }}</a></li>
-            {% endfor %}
-            <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
-        </ul>
-    </div>
-{% endif %}
-
-        </div>
-    </article>
     {% elif epost %}
     <article class="span9 data-block">
         <div class="data-container">

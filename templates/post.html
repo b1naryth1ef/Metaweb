@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block css %}
+<link rel='stylesheet' type='text/css' href='/static/css/plugins/bootstrap-wysihtml5.css'>
+<link rel='stylesheet' type='text/css' href='/static/css/single.css'>
+{% endblock %}
+{% block topnav %}
+{% endblock %}
+{% block gheader %}
+<header class="page-header" style="border-bottom: none;">
+  <ul class="page-header-actions">
+    {% if g.user and post.forum.perm_post <= g.user.level and not post.locked %}    
+      <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> Reply</a></li>
+    {% endif %}
+     {% if follows %}
+      <li><a href="/forum/ignorepost/{{ post.id }}" class="btn btn-alt btn-info"><i class="icon-bullhorn"></i><i> Unfollow</i></a></li>
+    {% else %}
+      <li><a href="/forum/followpost/{{ post.id }}" class="btn btn-alt btn-info"><i class="icon-bullhorn"></i> Follow</a></li>
+    {% endif %}
+
+  </ul>
+
+  <h1 style="margin: 0px;">{% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
+  <h3 style="margin: 0px;">
+    <i class="icon-user" style="margin-left:0px; margin-right:5px"></i>
+    {% if post.original %}
+      {{ post.original.author.username}}
+    {% else %}
+      {{ post.author.username }}
+    {% endif %}
+  </h3>
+  <div style="float:right;"><a href="/forum/b/{{ post.forum.id }}"><i class="icon-chevron-left"></i> Back to {{ post.forum.title }}</a></div>
+</header>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+<article class="span9 data-block">
+  {% for i in post.getThread() %}
+  <div class="post-body">
+    <a href="/u/{{ i.author.username }}">
+      <img src="https://minotar.net/avatar/{{ i.author.username }}/100" class="img-polaroid user-avatar">
+    </a>
+    <div class="post-arrow"></div>
+    <div class="post-content {% if post == i %}post-first{% endif %}">
+      <div class="post-header">
+        <b style="padding-right: 5px;"><a href="/u/{{ i.author.username }}">{{ i.author.username }}</a></b>
+        {{ i.author.getGroupBadge(i.author.level)|safe }}
+        {% if i.author.altlevel %}
+          {{ i.author.getGroupBadge(i.author.altlevel)|safe }}
+        {% endif %}
+        <i style="float: right;">{{ i.date|pretty }}</i>
+      </div>
+      <div class="post-message">
+        <p>{{ i.content|safe }}</p>
+        <div class="posty-footer">
+        {% if g.user %}
+          {% if i.author == g.user or g.user.level >= 60 %}
+            <a class="btn btn-mini btn-alt btn-danger popy" data-content="Are you <b>sure</b> you want to do that? <a href='/forum/deletepost/{{ i.id }}'>Yes!</a>" data-original-title="Confirm">Delete</a>
+            <a class="btn btn-mini btn-alt btn-success" href="/forum/editpost/{{ i.id }}">Edit</a>
+            {% if i == post and g.user.level >= 60 and not post.locked %}
+              <a class="btn btn-mini btn-alt btn-warning" id="lock" href="/forum/lockpost/{{ i.id }}">Lock</a>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% if post.getThread().count() > 10 %}
+    <div class="pagination" style="text-align: center;">
+      <ul>
+        <li {% if page == 1 %} class="disabled"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ page-1 }}"><span class="icon-arrow-left"></span></a></li>
+          {% for pg in (post.getReplys().count()/10)|pages %}
+            <li {% if pg == page %}class="active"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ pg }}">{{ pg }}</a></li>
+          {% endfor %}
+        <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/{{ post.forum }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
+      </ul>
+    </div>
+  {% endif %}
+</article>
+
+<article class="span3 data-block">
+  <div class="data-container">
+    <header style="padding: 5px 0px 0px;">
+      <h2>Forums</h2>
+    </header>
+    <section>
+      {% for c in cats %}
+        <h3 style="margin: 5px;">{{ c.title}}</h3>
+        <ul class="nav nav-list" style="margin-bottom: 0px;">
+        {% for f in c.getForums() %}
+          <li>
+            {% if board and board.id == f.id or post and post.forum.id == f.id %}<i>{% endif %}
+            <p>
+              <span class="icon-arrow-right"></span>
+              <a href="/forum/b/{{ f.id }}">{{ f.title }}</a>
+            </p>
+            {% if board and board.id == f.id or post and post.forum.id == f.id %}</i>{% endif %}
+          </li>
+        {% endfor %}
+        </ul>
+      {% endfor %}
+    </section>
+  </div>
+</article>
+</div>
+
+<div class="modal hide fade" id="postmodal">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+    <h3>New Post</h3>
+  </div>
+  <div class="modal-body">
+    <form action="/forum/replypost" method="post">
+      <fieldset>
+        <input type="hidden" name="post" value="{{ post.id }}">
+          <div class="control-group">
+            <label class="control-label" for="input">Content</label>
+            <div class="controls">
+              <textarea class="wysihtml" style="width: 98%" rows="8" id="content" name="content"></textarea>
+            </div>
+          </div>
+                
+          <div class="form-actions">
+            <button class="btn btn-alt btn-primary" type="submit" id="submitbut">Create Reply</button>
+          </div>
+      </fieldset>
+    </form>
+  </div>
+</div>
+{% endblock %}
