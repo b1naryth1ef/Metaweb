@@ -44,7 +44,7 @@
     <div class="post-content {% if post == i %}post-first{% endif %}">
       <div class="post-header">
         <b style="padding-right: 5px;"><a href="/u/{{ i.author.username }}">{{ i.author.username }}</a></b>
-        <span style="float: right;">{{ i.author.getGroupBadge(i.author.level)|safe }}</span>
+        {{ i.author.getGroupBadge(i.author.level)|safe }}
         
         <i style="float: right;">{{ i.date|pretty }}</i>
       </div>
