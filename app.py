@@ -1,4 +1,4 @@
-from flask import Flask, g, session
+from flask import Flask, g, session, request
 from flask.ext.gravatar import Gravatar
 from datetime import datetime
 #from raven.contrib.flask import Sentry
