@@ -7,17 +7,18 @@
 {% endblock %}
 {% block gheader %}
 <header class="page-header" style="border-bottom: none;">
-  <ul class="page-header-actions">
-    {% if g.user and post.forum.perm_post <= g.user.level and not post.locked %}    
-      <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> Reply</a></li>
-    {% endif %}
-     {% if follows %}
-      <li><a href="/forum/ignorepost/{{ post.id }}" class="btn btn-alt btn-info"><i class="icon-bullhorn"></i><i> Unfollow</i></a></li>
-    {% else %}
-      <li><a href="/forum/followpost/{{ post.id }}" class="btn btn-alt btn-info"><i class="icon-bullhorn"></i> Follow</a></li>
-    {% endif %}
-
-  </ul>
+  {% if g.user %}
+    <ul class="page-header-actions">
+      {% if post.forum.perm_post <= g.user.level and not post.locked %}    
+        <li><a data-toggle="modal" data-target="#postmodal" class="btn btn-alt btn-success"><i class="icon-plus-sign"></i> Reply</a></li>
+      {% endif %}
+       {% if follows %}
+        <li><a href="/forum/ignorepost/{{ post.id }}" class="btn btn-alt btn-info"><i class="icon-bullhorn"></i><i> Unfollow</i></a></li>
+      {% else %}
+        <li><a href="/forum/followpost/{{ post.id }}" class="btn btn-alt btn-info"><i class="icon-bullhorn"></i> Follow</a></li>
+      {% endif %}
+    </ul>
+  {% endif %}
 
   <h1 style="margin: 0px;">{% if post.original %}{{ post.original.title}}{% else %}{{ post.title }}{% endif %}</h1>
   <h3 style="margin: 0px;">
