@@ -102,7 +102,9 @@ def routeReplyPost():
             u = User.select().where(User.id == int(user))
             if not u.count(): continue
             if u[0] == g.user: continue
-            n = Notification(user=u[0], title='New reply to "%s"' % p.title, content=forum_note_content % (g.user.username, r.getUrl()))
+            prev = Notification.select().where(Notification.user==u[0], Notification.reference==p.id)
+            if prev.count(): prev[0].delete_instance()
+            n = Notification(user=u[0], title='%s replied to %s' % (g.user.username, p.title), content=forum_note_content % (g.user.username, r.getUrl()), reference=p.id)
             n.save()
     return flashy("Added reply!", "success", r.getUrl())
 

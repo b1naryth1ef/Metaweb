@@ -115,6 +115,7 @@ class Notification(BaseModel):
     title = CharField()
     content = TextField()
     ntype = CharField(default="success")
+    reference = IntegerField(null=True)
     date = DateTimeField(default=datetime.now)
 
 Notification.create_table(True)
