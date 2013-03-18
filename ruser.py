@@ -52,6 +52,7 @@ class RUser(object):
         return self.getServerInfo(id)
 
     def getLastServer(self):
+        if not self.red.llen("%s.play_history" % self.ukey): return None
         return json.loads(self.red.lrange("%s.play_history" % self.ukey, 0, 0)[0])
 
     def isOnline(self):
