@@ -7,11 +7,13 @@
   <h3 style="margin: 0px 0px;">
     {% if ruser.isOnline() %}
       <i>Online: {{ ruser.getCurrentServer()['name'] }}</i>
-    {% elif user.last_join %}
-      {% set v = ruser.getLastServer() %}
-      <i>Last played: {{ v['etime']|rawdate }} on {{ ruser.getServerInfo(v['sid'])['name'] }}</i>
     {% else %}
-      <i>Never played!</i>
+      {% set v = ruser.getLastServer() %}
+      {% if v %}
+        <i>Last played: {{ v['etime']|rawdate }} on {{ ruser.getServerInfo(v['sid'])['name'] }}</i>
+      {% else %}
+        <i>Never played!</i>
+      {% endif %}
     {% endif %}
   </h2>
 {% endblock %}
