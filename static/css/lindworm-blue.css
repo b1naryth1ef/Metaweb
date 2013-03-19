@@ -10393,6 +10393,10 @@ input[type="color"]:focus,
 .badge-important {
   background-color: #ae1513;
 }
+.label-gay,
+.badge-gay {
+  background-color: #FF00FF;
+}
 .label-important[href],
 .badge-important[href] {
   background-color: #ae1513;
