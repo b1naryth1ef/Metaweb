@@ -19,5 +19,4 @@ def graphPoc(user=None):
     graph2 = {"key": "Deaths (PvE)", "values": plugins[2].getField("deaths_pve").getWeekly(user=u.username)}
     graph3 = {"key": "Deaths (PvP)", "values": plugins[2].getField("deaths_pvp").getWeekly(user=u.username)}
     end = json.dumps([graph1, graph2, graph3], default=dthandler)
-    print end
     return render_template("graph_poc.html", u=u, ru=ru, plugins=plugins, v=end)
