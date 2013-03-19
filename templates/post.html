@@ -73,7 +73,7 @@
           {% for pg in (post.getReplys().count()/10)|pages %}
             <li {% if pg == page %}class="active"{% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ pg }}">{{ pg }}</a></li>
           {% endfor %}
-        <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/{{ post.forum.id }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
+        <li {% if page == post.getReplys().count()/10 %} class="disabled" {% endif %}><a href="/forum/b/{{ post.forum.id }}/{{ post.id }}:{{ page+1 }}"><span class="icon-arrow-right"></span></a></li>
       </ul>
     </div>
   {% endif %}
