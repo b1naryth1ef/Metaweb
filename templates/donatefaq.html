@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style>
+  .dl-horizontal dd {
+    margin-left: 150px;
+  }
+  .dl-horizontal dt {
+    width: 120px;
+    white-space: normal;
+  }
+  .page-container > .row, .page-container > .row-fluid {
+    border-bottom: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+  }
+</style>
+{% endblock %}
+
+{% block header %}
+    <h1>Donations FAQ</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+  <article class="span8 data-block">
+    <div class="data-container">
+      <header>
+        <h2>Donation FAQ</h2>
+      </header>
+      <section>
+        <dl class="dl-horizontal">
+          <dt>What do you use the money for?</dt>
+          <dd style="margin-bottom: 10px">All money from donations goes directly into the upkeep of our website and servers, and the creation/development of our mods. We know that your donating to keep MetaCraft alive, not to feed some hipster-programers.</dd>
+
+          <dt>Is your payment system secure?</dt>
+          <dd style="margin-bottom: 10px">Extremly. We've implemented a system that the awesome guys over at <a href="http://stripe.com">Stripe</a> have worked hard on. It's extremly robust, safe, and already becoming an industry standard. We <b>never</b> store any of your personal data on our servers, nor have direct access to your card information.</dd>
+
+          <dt>Why not PayPal</dt>
+          <dd style="margin-bottom: 10px"><a href="https://twitter.com/antonyjohnston/status/314024288208441344">Too</a> <a href="https://twitter.com/Swopes/status/314010658112954368">many</a> <a href="https://twitter.com/marcoarment/status/312569721088258048">horror</a> <a href="https://twitter.com/HighlifeTTU/status/308638994969817088">stories</a>. (Also they use instagram. How could we ever trust a company that uses instagram? I mean really...)</dd>
+        </dl>
+      </section>
+      <footer>
+      </footer>
+    </div>
+  </article>
+  <article class="span4 data-block">
+    <div class="data-container">
+      <header>
+        <h2>Perks to donating</h2>
+      </header>
+      <section>
+        <ul class="unstyled">
+          <li><span class="icon-chevron-right"></span> Refund within the first week!</li>
+          <li><span class="icon-chevron-right"></span> Have unlimited friends (instead of the default 25-max)</li>
+          <li><span class="icon-chevron-right"></span> Reserved slots on our servers!</li>
+          <li><span class="icon-chevron-right"></span> Bonus stats and graphs!</li>
+          <li><span class="icon-chevron-right"></span> Super-secret sexy awesome donators-only forum access!</li>
+          <li><span class="icon-chevron-right"></span> Access to extra commands in our plugins!</li>
+        </ul>
+      </section>
+    </div>
+  </article>
+</div>
+
+<div class='row-fluid'>
+  <div style="text-align: center;">
+    <a href="/donate/" class="btn btn-large btn-success">Donate Now!</a>
+  </div>
+</div>
+{% endblock %}

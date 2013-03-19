@@ -5,25 +5,31 @@ from datetime import datetime
 from database import *
 from git import *
 from ruser import RUser
-import os, redis, json
+import os, redis, json, stripe
 
 #Views
 from views.public import public
 from views.admin import admin
 from views.account import acct
 from views.forum import forum
+from views.donate import donate
+
+
+with open("config.cfg", 'r') as f:
+    config = json.load(f)
 
 app = Flask(__name__)
 app.secret_key = "change_me"
-app.config['SENTRY_DSN'] = "http://25a16ac496ac42ee864d8611fbe3a730:d2673a44f27c42cdb75d4ff646d08ebe@debug.hydr0.com/2" #@TODO change before release
-rpw = os.getenv("REDISPASS")
+stripe.api_key = config['STRIPE_SECRET_KEY']
+
+
 GIT_REV = os.popen("git log -n 1").readline().split(' ', 1)[-1][:12]
 
 app.register_blueprint(public)
+app.register_blueprint(donate)
 app.register_blueprint(admin, url_prefix="/admin")
 app.register_blueprint(acct, url_prefix="/acct")
 app.register_blueprint(forum, url_prefix="/forum")
-#sentry = Sentry(app)
 db.connect()
 
 #Load Commits
@@ -42,12 +48,13 @@ gravatar = Gravatar(
 )
 
 @app.before_request
-def beforeRequest():
-    g.redis = redis.Redis('mc.hydr0.com', password=rpw)
+def beforeRequest(): #@TODO fix this shit, optimize, find global obj that persists
+    g.redis = redis.Redis(config['REDISHOST'], password=config['REDISPASS'])
     g.db = db
     g.db.connect()
     g.gitrev = GIT_REV
     g.changes = changes
+    g.config = config
     if session.get('u'):
         g.user = User.select().where(User.username == session['u']).get()
         g.ruser = RUser(g.user.username, g.user.id, g.redis)

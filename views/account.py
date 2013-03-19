@@ -27,22 +27,21 @@ def routeIndex():
 @acct.route("/friend/<user>/<action>")
 @reqLogin
 def routeFriends(user=None, action=None):
-    if not user or not action:
-        return "Invalid Request", 400
-    q = User.select().where(User.username==user)
-    if q.count(): user = q[0]
+    if not user or not action: return "Invalid Request", 400
+    q = User.select().where(User.username ** user)
+    if q.count() == 1: user = q[0]
     else: return flashy("That user doesnt seem to exist!", "error", "/")
 
     if g.user == user:
-        return flashy("LOLNOPE", "error", "/")
+        return flashy("You can't add yourself as a friend silly!", "error", "/")
 
     if action == "add":
         if not g.user.canFriend(user):
             return flashy("You can't friend that user!", "error", "/")
-        n = Notification(user=user, title="%s wants to be your friend!" % g.user.username, content=friend_msg.format(user=g.user.username))
-        n.save()
         f = Friendship(a=g.user, b=user, confirmed=False, ignored=False, date=datetime.now(), note=n)
         f.save()
+        n = Notification(user=user, title="%s wants to be your friend!" % g.user.username, content=friend_msg.format(user=g.user.username), reference=f.id)
+        n.save()
         return flashy("Your friend request has been sent too '%s'!" % user.username, "success", "/")
     elif action == "rmv":
         if not g.user.isFriendsWith(user):
@@ -74,16 +73,14 @@ def routeFriends(user=None, action=None):
         f.save()
         return flashy("The friend request from %s has been denied!" % user.username, "warning", "/acct")
 
-@acct.route('/note/<id>/<action>')
+@acct.route('/note/<int:id>/<action>')
 @reqLogin
 def routeNotes(id=None, action=None):
-    if not id or not id.isdigit() or not action:
-        return "Invalid Request", 400
+    if not id or not action: return "Invalid Request", 400
 
     q = Notification.select().where(Notification.id == int(id))
     if q.count(): note = q[0]
-    else:
-        return flashy("That note does not exist!", "error", "/acct")
+    else: return flashy("That note does not exist!", "error", "/acct")
 
     if action == "markread":
         note.read = True
@@ -94,9 +91,10 @@ def routeNotes(id=None, action=None):
         note.delete_instance()
         return "success"
 
-@acct.route('/edit', methods=['POST'])
+#-- Profile --
+@acct.route('/edit_profile', methods=['POST'])
 @reqLogin
-def routeEdit():
+def routeEditProfile():
     fields = ["tag_line", "gender", "location", "youtube", "twitch", "twitter", "skype", "description"]
 
     for k, v in request.form.items():
@@ -107,6 +105,7 @@ def routeEdit():
 
     return flashy("Edited profile!", "success", "/acct")
 
+#-- Infractions --
 @acct.route('/infraction/<int:id>')
 @reqLogin
 def routeInfraction(id):
@@ -122,7 +121,7 @@ def routeInfraction(id):
 
     return render_template("infraction.html", inf=i)
 
-@acct.route("/disp_infraction/", methods=['POST'])
+@acct.route("/infraction/dispute", methods=['POST'])
 @reqLogin
 def routeDisputeInfraction():
     if not request.form.get("inf") or not request.form.get("content") or not request.form.get("inf").isdigit():

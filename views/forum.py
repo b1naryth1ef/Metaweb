@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, flash, redirect, request, g, sessi
 from util import reqLogin, reqLevel, flashy
 from database import *
 from datetime import datetime
+import time
 
 forum = Blueprint('forum', __name__)
 
@@ -61,6 +62,9 @@ def routeAddPost():
     if b.perm_post > g.user.level: return flashy("You dont have permission to do that!", "error", "/forum")
     if request.form.get('sticky') and g.user.level >= 60: stick = True
     else: stick = False
+    if time.time()-g.ruser.getLastPost() < 15:
+        return flashy("Your doing that too quickly! Please wait a bit before posting again!", "warning", "/forum")
+
     p = ForumPost(
         author=g.user,
         forum=b,
@@ -70,6 +74,7 @@ def routeAddPost():
         title=request.form.get("title"),
         sticky=stick)
     p.save()
+    g.ruser.setLastPost()
     if 'thread' in request.form.keys(): pass
     return flashy("Added post!", "success", "/forum/b/%s/%s" % (b.id, p.id))
 
@@ -85,6 +90,9 @@ def routeReplyPost():
     q = ForumPost.select().where(ForumPost.content == request.form.get("content"), ForumPost.author == g.user)
     if q.count(): return flashy("You've already posted that!", "error", "/forum")
     if p.locked: return flashy("That post is locked!", "error", "/forum")
+    if time.time()-g.ruser.getLastPost() < 15:
+        return flashy("Your doing that too quickly! Please wait a bit before posting again!", "warning", "/forum")
+
     r = ForumPost(
         author=g.user,
         forum=p.forum,
@@ -93,7 +101,7 @@ def routeReplyPost():
         content=request.form.get("content"),
         title=None)
     r.save()
-
+    g.ruser.setLastPost()
     p.last_update = datetime.now()
     p.save()
 

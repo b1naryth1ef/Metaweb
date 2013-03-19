@@ -131,3 +131,11 @@ class RUser(object):
         if rev:
             res.reverse()
         return res
+
+    def getLastPost(self):
+        if self.red.exists("%s.last_post" % self.ukey):
+            return float(self.red.get("%s.last_post" % self.ukey))
+        else: return 0
+
+    def setLastPost(self):
+        self.red.set("%s.last_post" % self.ukey, time.time())

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block gheader %}{% endblock %}
+
+{% block content %}
+{% if donations.count() %}
+{% endif %}
+<div class="hero-unit">
+  <h1 style="margin-bottom: 15px;">Support MetaCraft</h1>
+  <p>MetaCraft is a 100% community built and ran service. Although we're dedicated to bringing you an awesome modded-minecraft experience, we can't always do it without your help. By donating, you show your direct support to the mods and servers MetaCraft hosts, and get a few cool perks in return!
+    <div style="text-align: center;">
+      <a href="/donate/faq" class="btn btn-large btn-success">Donation FAQ</a>
+    </div>
+  </p>
+  <hr>
+  <div class="row-fluid">
+    <article class="span6 data-block data-block-alt">
+      <div class="data-container">
+        <header>
+          <h2>Donate Because You</h2>
+        </header>
+        <section>
+          <ul class="unstyled">
+            <li><span class="icon-chevron-right"></span>Love Metacraft</li>
+            <li><span class="icon-chevron-right"></span>Have a crush on one of the admins</li>
+            <li><span class="icon-chevron-right"></span>Want more servers</li>
+            <li><span class="icon-chevron-right"></span>Are feeling the love</li>
+          </ul>
+        </section>
+      </div>
+    </article>
+    <article class="span6 data-block data-block-alt">
+      <div class="data-container">
+        <header>
+          <h2>But Don't Donate If You</h2>
+        </header>
+        <section>
+          <ul class="unstyled">
+            <li><span class="icon-chevron-right"></span>Can't afford it</li>
+            <li><span class="icon-chevron-right"></span>Just want the donator-flair/perks</li>
+            <li><span class="icon-chevron-right"></span>Don't play on our servers</li>
+            <li><span class="icon-chevron-right"></span>Don't love us D:</li>
+          </ul>
+        </section>
+      </div>
+    </article>
+
+  </div>
+  <hr>
+  <div style="text-align: center" id="replace">
+    <p>
+      Donations must be at least 10$ because of credit-card processing fees.
+      You may refund your charge within <b>one</b> week of donating! Please use integer numbers (no decimals) in your donation amount.
+      <br /><i>We use <a href="stripe.com">Stripe</a> for credit-card processing</i>
+    </p>
+    <div class="control-group" id="btnval">
+      <div class="form-controls">
+        <div class="input-prepend input-append">
+          <input id="donateamnt" class="span1" type="text" value="10"><span class="add-on">$</span>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="btn btn-large btn-primary" id="donatebtn">Donate Now!</button>
+
+  </div>
+  <div style="text-align: center;"><span id="loader" style="display: none;" class="loading red" title="" data-original-title="Loading, please wait…">Loading…</span></div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+<script src="https://checkout.stripe.com/v2/checkout.js"></script>
+
+<script>
+    $('#donatebtn').click(function(){
+      var intRegex = /^\d+$/;
+      if (!intRegex.test($('#donateamnt').val())) {
+        $('#btnval').addClass('error')
+        return;
+      }
+
+      var token = function(res){
+        $('#replace').fadeOut()
+        $('#loader').fadeIn()
+        $.post('/donate/charge', 
+          {stripeToken: res.id, amount: $("#donateamnt").val()}, 
+          function (data) {
+            window.location.replace("/")
+          });
+      };
+
+      StripeCheckout.open({
+        key:         '{{ pub_key }}',
+        address:     false,
+        amount:      $('#donateamnt').val()+"00",
+        name:        'MetaCraft Donation',
+        description: 'Donation to MetaCraft',
+        panelLabel:  'Checkout',
+        token:       token
+      });
+
+      return false;
+    });
+  </script>
+{% endblock %}

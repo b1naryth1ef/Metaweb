@@ -37,7 +37,7 @@
 <div class="row-fluid">
 <article class="span9 data-block">
   {% for i in post.getThread(page) %}
-  <div class="post-body">
+  <div class="post-body" id="{{ i.id }}">
     <a href="/u/{{ i.author.username }}">
       <img src="https://minotar.net/avatar/{{ i.author.username }}/100" class="img-polaroid user-avatar">
     </a>
@@ -47,7 +47,7 @@
         <b style="padding-right: 5px;"><a href="/u/{{ i.author.username }}">{{ i.author.username }}</a></b>
         {{ i.author.getGroupBadge(i.author.level)|safe }}
         
-        <i style="float: right;">{{ i.date|pretty }}</i>
+        <i style="float: right;"><a href="{{ i.getUrl() }}">{{ i.date|pretty }}</a></i>
       </div>
       <div class="post-message">
         <p>{{ i.content|safe }}</p>

@@ -45,9 +45,9 @@
                       <a href="/u/{{ g.user.username }}">{{ g.user.username }}</a>
                       {% if g.user.tagline %}<em>{{ g.user.tagline }}</em>{% endif %}
                       <ul class="user-profile-actions">
-                        <li><a href="/u/{{ g.user.username }}"><span class="icon-user"></span></a></li>
-                        <li><a href="/acct" title="Personal settings"><span class="icon-cogs"></span></a></li>
-                        <li><a href="/logout" title="Logout"><span class="icon-lock"></span></a></li>
+                        <li><a class="ttgen" href="/u/{{ g.user.username }}" title="Profile"><span class="icon-user"></span></a></li>
+                        <li><a class="ttgen" href="/acct" title="Account Settings"><span class="icon-cogs"></span></a></li>
+                        <li><a class="ttgen" href="/logout" title="Logout"><span class="icon-lock"></span></a></li>
                       </ul>
                     </div>
                   </div>
@@ -75,7 +75,7 @@
                     </li>
                     {% if g.user %}
                       <li>
-                        <a href="/acct/" class="no-submenu"><span class="icon-cogs"></span>Account</a>
+                        <a href="/donate/" class="no-submenu"><span class="icon-shopping-cart"></span>Donate</a>
                       </li>
                       {% if g.user.level >= 60 %}
                         <li>
@@ -256,6 +256,12 @@
         <script src="/static/js/scripts.js"></script>
 
         <script src="/static/js/plugins/pageSlide/jquery.pageslide.min.js"></script>
+
+        <script>
+        $(document).ready(function() {
+          $('.ttgen').tooltip({html: true, placement: "right"})
+        });
+        </script>
         {% block scripts %}
         <script>
       $(document).ready(function() {

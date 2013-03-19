@@ -172,12 +172,13 @@ class ForumPost(BaseModel):
     def getUrl(self):
         if self.original: id = self.original.id
         else: id = self.id
-        return "/forum/b/%s/%s:%s" % (self.forum.id, id, self.getPage())
+        return "/forum/b/%s/%s:%s#%s" % (self.forum.id, id, self.getPage(), self.id)
 
     def getPage(self): #@DEV inefficient
         if not self.original: return 1
         q = [i for i in ForumPost.select().where(ForumPost.original == self.original).order_by(ForumPost.date)]
-        return q.index(self)/10
+        if q.index(self)/10 == 0: return 1
+        else: return (q.index(self)/10)+1
 
     def getLatestPost(self):
         q = self.getReplys(rev=True)
@@ -224,6 +225,15 @@ class Friendship(BaseModel):
 
 Friendship.create_table(True)
 
+class Donation(BaseModel):
+    user = ForeignKeyField(User, "donations")
+    stripeid = CharField()
+    customerid = CharField()
+    amount = DoubleField()
+    active = BooleanField()
+    created = DateTimeField(null=True)
+
+Donation.create_table(True)
 
 def setupForums():
     cat1 = Forum(title="MetaCraft", perm_view=0, perm_post=60, order=0, cat=True)

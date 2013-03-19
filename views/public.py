@@ -7,39 +7,39 @@ import json
 
 public = Blueprint('public', __name__)
 
-class UserStats():
-    def __init__(self, user):
-        self.u = user.lower()
+# class UserStats():
+#     def __init__(self, user):
+#         self.u = user.lower()
 
-    def getServer(self):
-        return g.redis.get("meta.user.%s.online")
+#     def getServer(self):
+#         return g.redis.get("meta.user.%s.online")
 
-    def online(self):
-        return g.redis.exists("meta.user.%s.online" % self.u)
+#     def online(self):
+#         return g.redis.exists("meta.user.%s.online" % self.u)
 
-    def kd(self, t="pvp"):
-        return self.kills()/self.deaths()
+#     def kd(self, t="pvp"):
+#         return self.kills()/self.deaths()
 
-    def kills(self, t="pvp"):
-        return float(150) #g.redis.get("meta.stat.%s.%s.kills" % (t, self.u))
+#     def kills(self, t="pvp"):
+#         return float(150) #g.redis.get("meta.stat.%s.%s.kills" % (t, self.u))
 
-    def deaths(self, t="pvp"):
-        return float(300) #g.redis.get('meta.stat.%s.%s.deaths' % (t, self.u))
+#     def deaths(self, t="pvp"):
+#         return float(300) #g.redis.get('meta.stat.%s.%s.deaths' % (t, self.u))
 
-    def kdchart(self, t):
-        kills = float(self.kills(t))
-        deaths = float(self.deaths(t))
-        if kills > deaths:
-            k = (kills/deaths)*10
-            d = 100-k
-        else:
-            d = (deaths/kills)*10
-            k = 100-d
-        info = [
-            {"label": "Kills", 'data':[[1, k]]},
-            {"label": "Deaths", 'data':[[1, d]]}
-        ]
-        return json.dumps(info)
+#     def kdchart(self, t):
+#         kills = float(self.kills(t))
+#         deaths = float(self.deaths(t))
+#         if kills > deaths:
+#             k = (kills/deaths)*10
+#             d = 100-k
+#         else:
+#             d = (deaths/kills)*10
+#             k = 100-d
+#         info = [
+#             {"label": "Kills", 'data':[[1, k]]},
+#             {"label": "Deaths", 'data':[[1, d]]}
+#         ]
+#         return json.dumps(info)
 
 @public.route('/')
 def routeIndex():
@@ -65,29 +65,16 @@ def routeLogin():
         if u.count():
             u = u.get()
             if u.checkPassword(request.values['pw']):
-                #q = Infractions.select().where((Infractions.user==u) & (Infractions.permban==True))
-                #if q.count():
-                #    return flashy("You are banned from the site!", "error", "/")
+                #@TODO check if banned
                 session['u'] = u.username
                 return flashy("Welcome back %s!" % u.username, "success", "/")
         return flashy("Invalid username/password!", "error", "/")
     else:
         return flashy("Invalid login request!", "error", "/")
 
-# @public.route('/register/')
-# def routeRegister():
-#     if 'email' in request.values and 'id' in request.values:
-#         key = 'meta.register.%s' % request.get('email')
-#         if g.redis.exists(key):
-#             val = json.loads(g.redis.get(key))
-#             if val['key'] == request.get('id'):
-#                 return render_template("register.html", email=request.values.get('email'), username=val['user'])
-#     return flashy("Invalid register request!", "error", "/")
-
 @public.route("/u/<user>")
 def routeProfile(user=None):
-    if not user:
-        return flashy("You must specify a user!", "error", "/")
+    if not user: return flashy("You must specify a user!", "error", "/")
     u = User.select().where(User.username ** user)
     if u.count():
         return render_template("profile.html", user=u[0], ruser=RUser(u[0].username, u[0].id, g.redis))
@@ -95,12 +82,9 @@ def routeProfile(user=None):
 
 @public.route("/p/<id>")
 def routePage(id=None):
-    if id.isdigit():
-        p = Page().select().where(Page.id==id)
-    else:
-        p = Page().select().where(Page.title**id)
-    if not p.count() == 1:
-        return flashy("Error finding page!", "error", "/")
+    if id.isdigit(): p = Page().select().where(Page.id==id)
+    else: p = Page().select().where(Page.title**id)
+    if not p.count() == 1: return flashy("Error finding page!", "error", "/")
     return render_template("page.html", page=p[0])
 
 @public.route("/register/", methods=["GET", "POST"])
