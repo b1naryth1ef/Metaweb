@@ -13,7 +13,7 @@ from views.admin import admin
 from views.account import acct
 from views.forum import forum
 from views.donate import donate
-
+from views.graph import graph
 
 with open("config.cfg", 'r') as f:
     config = json.load(f)
@@ -27,6 +27,7 @@ GIT_REV = os.popen("git log -n 1").readline().split(' ', 1)[-1][:12]
 
 app.register_blueprint(public)
 app.register_blueprint(donate)
+app.register_blueprint(graph)
 app.register_blueprint(admin, url_prefix="/admin")
 app.register_blueprint(acct, url_prefix="/acct")
 app.register_blueprint(forum, url_prefix="/forum")

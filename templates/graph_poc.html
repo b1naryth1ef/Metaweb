@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block css %}
+<link href="http://nvd3.org/src/nv.d3.css" rel="stylesheet">
+<script type="text/javascript" src="http://nvd3.org/lib/d3.v2.js"></script>
+<script type="text/javascript" src="http://nvd3.org/nv.d3.js"></script>
+<style>
+#chart svg {
+  height: 400px;
+}
+</style>
+{% endblock %}
+
+{% block header %}
+<h1>
+  Proof of Concept Graph For {{ u.username }}
+</h1>
+{% endblock %}
+
+{% block content %}
+<div class="row-fluid">
+  <div id="chart">
+    <svg></svg>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+nv.addGraph(function() {
+  var chart = nv.models.lineChart()
+                .x(function(d) { return d[0] })
+                .y(function(d) { return d[1] })
+                .clipEdge(true);
+
+  chart.xAxis
+      .showMaxMin(false)
+      .tickFormat(function(d) { return d3.time.format('%x')(new Date(d * 1000.0)) });
+
+  chart.yAxis.tickFormat(d3.format(',f'));
+
+  d3.select('#chart svg')
+    .datum({{ v|safe }})
+      .transition().duration(500).call(chart);
+
+  nv.utils.windowResize(chart.update);
+
+  return chart;
+});
+</script>
+{% endblock %}
+
