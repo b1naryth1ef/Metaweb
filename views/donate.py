@@ -12,7 +12,9 @@ def routeDonateAPI(): #@TODO guard against repeat attacks
         eve = stripe.Event.retrieve(request.json['id'])
         if eve:
             q = Donation.select().where(Donation.stripeid == eve.data.object.id)
-            if not q.count(): return
+            if not q.count():
+                print request.json
+                return "D:"
             q = q[0]
             #@TODO modify user accounts accordingly
             if eve.type == "charge.succeeded":
