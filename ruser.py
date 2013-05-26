@@ -1,10 +1,21 @@
-import json, time
+import json, time, random
 
 #Infractions status
 #0 - Undisputed
 #1 - Dispute filed, waiting admins
 #2 - Dispute accepted
 #3 - Dispute denied
+
+#Infractions:
+# status: int
+# expires: float/null
+# msg: string
+# time: float
+# mod: string
+# type: string
+# id: int
+# dispute: string
+# key: string
 
 super_iter = [("minute", 60), ("hour", 24), ("day", 7), ("week", None), (None, None)]
 
@@ -61,39 +72,6 @@ class RUser(object):
     def isBanned(self):
         return self.red.exists("%s.banned" % self.ukey)
 
-    def addInfraction(self, typ, msg, admin):
-        inf = {'type': typ, "msg": msg, 'mod': admin, "status": 0, "time": time.time(), "expires": None, "active": True, "seen": False}
-        self.red.lpush("%s.infractions" % self.ukey, json.dumps(inf))
-
-    def getInfraction(self, id):
-        q = self.red.lindex("%s.infractions" % self.ukey, id)
-        if q:
-            return json.loads(q)
-
-    def getInfractionCount(self):
-        return self.red.llen("%s.infractions" % self.ukey)
-
-    def getInfractions(self, rev=False):
-        vals = []
-        for i, item in enumerate(self.red.lrange("%s.infractions" % self.ukey, 0, -1)):
-            vals.append(json.loads(item))
-            vals[-1]['id'] = i
-        if rev: vals.reverse()
-        return vals
-
-    def getActiveInfractionCount(self, disputed=False, waiting=False, seen=False):
-        num = 0
-        for item in self.getInfractions():
-            if item['status'] in [0, 1, 3]:
-                if seen and item['seen']: continue
-                if disputed and item['status'] == 1: continue
-                if waiting and item['status'] != 1: continue
-                num += 1
-        return num
-
-    def updateInfraction(self, id, val):
-        self.red.lset("%s.infractions" % self.ukey, id, json.dumps(val))
-
     def addServerHistory(self, sid):
         if self.red.llen("%s.play_history" % self.ukey) >= 10:
             self.red.rpop("%s.play_history" % self.ukey)
@@ -139,3 +117,43 @@ class RUser(object):
 
     def setLastPost(self):
         self.red.set("%s.last_post" % self.ukey, time.time())
+
+    def addInfraction(self, typ, msg, admin, key=None):
+        if key: key = random.randint(11111, 99999)
+        inf = {
+            'id': self.red.incr("meta.infractions"),
+            'type': typ,
+            "msg": msg,
+            'mod': admin,
+            "status": 0,
+            "time": time.time(),
+            "expires": None,
+            "key": key}
+        self.red.lpush("%s.infractions", inf['id'])
+        self.red.hmset("meta.infractions.%s" % inf['id'], inf)
+
+    def getInfraction(self, id):
+        return self.red.hgetall("meta.infraction.%s" % id)
+
+    def getInfractionCount(self):
+        return self.red.llen("%s.infractions" % self.ukey)
+
+    def getInfractions(self, rev=False):
+        vals = []
+        for id in self.red.lrange("%s.infractions" % self.ukey, 0, -1):
+            vals.append(self.red.hgetall("meta.infraction.%s" % id))
+        if rev: vals.reverse()
+        return vals
+
+    def getActiveInfractionCount(self, disputed=False, waiting=False, seen=False):
+        num = 0
+        for item in self.getInfractions():
+            if item['status'] in [0, 1, 3]:
+                if seen and self.red.sismember("%s.infractions_seen" % item['id']): continue
+                if disputed and item['status'] == 1: continue
+                if waiting and item['status'] != 1: continue
+                num += 1
+        return num
+
+    def updateInfraction(self, id, val):
+        self.red.hmset("meta.infractions.%s" % val['id'], val)
